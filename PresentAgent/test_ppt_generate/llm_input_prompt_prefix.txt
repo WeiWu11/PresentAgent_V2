@@ -1,0 +1,260 @@
+You are a markdown cleanup judge working for a presentation generation agent.
+This agent converts webpage HTML into markdown and later uses the markdown to build a structured document, presentation outline, slides, and narrated video.
+
+Task:
+You are given the beginning of the generated markdown.
+
+Your job is to decide whether the markdown opening contains noisy content that should be removed before document parsing.
+We are preparing a presentation from the current main webpage only.
+We only want the complete content of the current main page itself.
+We do not care about child links, recommended links, related articles, or any other linked pages, even if they are topically similar.
+
+The noisy content usually includes:
+- MathJax or LaTeX macro definitions
+- rendering setup code such as \require, \newcommand, \definecolor, \DeclareMathOperator
+- navigation remnants
+- table of contents blocks that appear before the real article starts
+- webpage boilerplate that is not part of the article body
+- decorative image-only or caption-only blocks that appear before the real article starts
+- linked-page previews, repository cards, recommended article cards, or other blocks that mainly point to another page instead of continuing the current page
+
+Important rules:
+- Do not delete the real article title.
+- Do not delete author information if it belongs to the actual article header.
+- Do not delete the first meaningful heading or paragraph of the article.
+- You may delete one or more noisy contiguous ranges if they clearly do not belong to the article body.
+- Do not rewrite markdown content.
+- Do not output cleaned markdown.
+- Only identify which contiguous ranges should be deleted.
+
+Input:
+Generated markdown excerpt:
+```text
+![Representative image](assets/2f1b7676_representative.gif)
+
+Caption: Representative image
+
+## An introduction to Flow Matching
+
+diffusion model generative modelling normalising flows
+
+\[\require{physics}
+\require{color}
+\newcommand{\hlorange}[1]{\colorbox{orange}{$\displaystyle#1$}}
+\newcommand{\hlblue}[1]{\colorbox{blue}{$\displaystyle#1$}}
+\definecolor{Highlight1}{RGB}{76,114,176}
+\definecolor{Highlight2}{RGB}{85,168,104}
+\definecolor{Highlight3}{RGB}{196,78,82}
+\definecolor{Highlight4}{RGB}{129,114,179}
+\definecolor{Highlight5}{RGB}{204,185,116}
+\def\hlone#1{\color{Highlight1} #1}
+\def\hltwo#1{\color{Highlight2} #1}
+\def\hlthree#1{\color{Highlight3} #1}
+\def\hlfour#1{\color{Highlight4} #1}
+\def\hlfive#1{\color{Highlight5} #1}
+\def\hlsix#1{\color{Highlight6} #1}
+\def\R{\mathbb{R}}
+\def\E{\mathbb{E}}
+\def\P{\mathbb{P}}
+\def\L{\mathcal{L}}
+\def\N{\mathrm{N}}
+\def\I{\mathrm{I}}
+\def\Id{\mathrm{Id}}
+\def\good{\color{green}{\checkmark}}
+\def\bad{\color{red}{\times}}
+\def\forward#1{\overset{\rightarrow}{#1}}
+\def\backward#1{\overset{\leftarrow}{#1}}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\div}{\mathrm{div}}
+\DeclareMathOperator*{\det}{\mathrm{det}}
+\def\sigmamin{\sigma_{\mathrm{min}}}
+\newcommand{\hlred}[1]{\colorbox{red}{$\displaystyle#1$}}
+\newcommand{\hlyellow}[1]{\colorbox{yellow}{$\displaystyle#1$}}
+\newcommand{\hlorange}[1]{\colorbox{orange}{$\displaystyle#1$}}
+\newcommand{\hlblue}[1]{\colorbox{blue}{$\displaystyle#1$}}
+\newcommand{\hlgreen}[1]{\colorbox{green}{$\displaystyle#1$}}
+\nonumber\]
+
+- Introduction
+
+- Normalising Flows
+
+- Learning flow parameters by maximum likelihood
+
+- Residual flow
+
+- Continuous time limit
+
+- Flow matching
+
+- Conditional Flows
+
+- Gaussian probability paths
+
+- But is CFM really all rainbows and unicorns?
+
+- Coupling
+
+- Quick Summary
+
+- Citation
+
+- Acknowledgments
+
+- References
+
+## Introduction
+
+Flow matching (FM) is a recent generative modelling paradigm which has rapidly been gaining popularity in the deep probabilistic ML community. Flow matching combines aspects from Continuous Normalising Flows (CNFs) and Diffusion Models (DMs) , alleviating key issues both methods have. In this blogpost we’ll cover the main ideas and unique properties of FM models starting from the basics.
+
+## Generative Modelling
+
+Let’s assume we have data samples $x_1, x_2, \ldots, x_n$ from a distribution of interest $q_1(x)$, whose density is unknown. We’re interested in using these samples to learn a probabilistic model approximating $q_1$. In particular, we want efficient generation of new samples (approximately ) distributed from $q_1$. This task is referred to as generative modelling .
+
+The advancement in generative modelling methods over the past decade has been nothing short of revolutionary. In 2012, Restricted Boltzmann Machines, then the leading generative model, were just about able to generate MNIST digits . Today, state-of-the-art methods are capable of generating high-quality images , audio and language , as well as model complex biological and physical systems. Unsurprisingly, these methods are now venturing into video generation .
+
+![Protein generated by RFDiffusion (Watson et al., 2023).](assets/f803f9ad_diffusion_protein.jpg)
+
+Caption: Protein generated by RFDiffusion (Watson et al., 2023).
+
+Figure 1: Protein generated by RFDiffusion (Watson et al., 2023).
+
+![Image from DALL-E 3 (Betker et al., 2023).](assets/6b777005_dalle_potatoes.jpeg)
+
+Caption: Image from DALL-E 3 (Betker et al., 2023).
+
+Figure 2: Image from DALL-E 3 (Betker et al., 2023).
+
+## Outline
+
+Flow Matching (FM) models are in nature most closely related to (Continuous) Normalising Flows (CNFs). Therefore, we start this blogpost by briefly recapping the core concepts behind CNFs. We then continue by discussing the difficulties of CNFs and how FM models address them.
+
+## Normalising Flows
+
+Let $\phi: \mathbb{R}^d \rightarrow \mathbb{R}^d$ be a continuously differentiable function which transforms elements of $\mathbb{R}^d$, with a continously differentiable inverse $\phi^{-1}: \mathbb{R}^d \to \mathbb{R}^d$. Let $q_0(x)$ be a density on $\mathbb{R}^d$ and let $p_1(\cdot)$ be the density induced by the following sampling procedure
+
+\[\begin{equation*}
+\begin{split}
+x &\sim q_0 \\
+y &= \phi(x),
+\end{split}
+\end{equation*}\]
+
+which corresponds to transforming the samples of $q_0$ by the mapping $\phi$. Using the change-of-variable rule we can compute the density of $p_1$ as
+
+\[\begin{align}
+\label{eq:changevar}
+p_1(y) &= q_0(\phi^{-1}(y)) \abs{\det\left[\frac{\partial \phi^{-1}}{\partial y}(y)\right]} \\
+\label{eq:changevar-alt}
+ &= \frac{q_0(x)}{\abs{\det\left[\frac{\partial \phi}{\partial x}(x)\right]}} \quad \text{with } x = \phi^{-1}(y)
+\end{align}\]
+
+where the last equality can be seen from the fact that $\phi \circ \phi^{-1} = \Id$ and a simple application of the chain rule 1 . The quantity $\frac{\partial \phi^{-1}}{\partial y}$ is the Jacobian of the inverse map. It is a matrix of size $d\times d$ containing $J_{ij} = \frac{d\phi^{-1}_i}{dx_j}$. Depending on the task at hand, evaluation of likelihood or sampling, the formulation in $\eqref{eq:changevar}$ or $\eqref{eq:changevar-alt}$ is preferred (Friedman, 1987; Chen & Gopinath, 2000).
+
+Suppose $\phi$ is a linear function of the form
+
+\[\phi(x) = ax+b\]
+
+with scalar coefficients $a,b\in\mathbb{R}$, and $p$ to be Gaussian with mean $\mu$ and variance $\sigma^2$, i.e.
+
+\[p = \mathcal{N}(\mu, \sigma^2).\]
+
+We know from linearity of Gaussians that the induced $q$ will also be Gaussian distribution but with mean $a\mu+b$ and variance $a^2 \sigma^2$, i.e.
+
+\[q = \mathcal{N}(a \mu + b, a^2 \sigma^2).\]
+
+More interestingly, though, is to verify that we obtain the same solution by applying the change-of-variable formula. The inverse map is given by
+
+\[\phi^{-1}(y) \mapsto \frac{y-b}{a}\]
+
+and it’s derivative w.r.t. $y$ is thus $1/a$ assuming scalar inputs. We thus obtain
+
+\[\begin{align*}
+q(y) &= p\bigg(\frac{y-b}{a}\bigg) \frac{1}{a} \\
+&= \mathcal{N}\bigg(\frac{y-b}{a}; \mu, \sigma^2\bigg) \frac{1}{a}\\
+&= \frac{1}{\sqrt{2\pi\sigma^2}}\exp \bigg(-\frac{(y/a -b/a-\mu)^2}{2\sigma^2} \bigg)\frac{1}{a}\\
+&= \frac{1}{\sqrt{2\pi(a\sigma)^2}}\exp \bigg(-\frac{1}{a^2}\frac{(y-(a\mu+b))^2}{2\sigma^2} \bigg) \\
+&= \mathcal{N}\big(y; a\mu+b,a^2\sigma^2\big).
+\end{align*}\]
+
+We have thus verified that the change-of-variables formula can be used to compute the density of a Gaussian variable tranformed by a linear mapping.
+
+Often, to simplify notation, we will use the ‘push-forward’ operator $[\phi]_{\#}$ to denote the change in density of applying an invertible map $\phi$ to an input density. That is
+
+\[q(y) = ([\phi]_{\#} p)(y) = p\big(\phi^{-1}(y)\big) \det\left[\frac{\partial \phi^{-1}}{\partial y}(y)\right].\]
+
+If we make the choice of $a = 1$ and $b = \mu$, then we get $\mathcal{N}(\mu, 1)$, as can be seen in the figure below.
+
+![$\phi_t(x_0)$ for three samples $x_0 \sim p_0 = \mathcal{N}(0, 1)$ coloured according to $p_0(x_0)$.](assets/839e6a8d_simple-gaussian-without-trajs.png)
+
+Caption: $\phi_t(x_0)$ for three samples $x_0 \sim p_0 = \mathcal{N}(0, 1)$ coloured according to $p_0(x_0)$.
+
+Figure 3: $\phi_t(x_0)$ for three samples $x_0 \sim p_0 = \mathcal{N}(0, 1)$ coloured according to $p_0(x_0)$.
+
+Transforming a base distribution $q_0$ into another $p_1$ via a transformation $\phi$ is interesting, yet its direct application in generative modelling is limited. In generative modelling, the aim is to approximate a distribution using only the available samples. Therefore, this task requires the transformation $\phi$ to map samples from a “simple” distribution, such as $\mathcal{N}(0,I)$, to approximately the data distribution. However, a straightforward linear transformation, as in the previous example, is inadequate due to the highly non-Gaussian nature of the data distribution. This brings us to a neural network as a flexible transformation $\phi_\theta$. The key task then becomes optimising the neural net’s parameters $\theta$.
+
+### Learning flow parameters by maximum likelihood
+
+Let’s denote the induced parametric density by the flow $\phi_\theta$ as $p_1 \triangleq [\phi_\theta]_{\#}p_0$.
+
+A natural optimisation objective for learning the parameters $\theta \in \Theta$ is to consider maximising the probability of the data under the model:
+
+\[\begin{equation*}
+\textrm{argmax}_{\theta}\ \ \mathbb{E}_{x\sim \mathcal{D}} [\log p_1(x)].
+\end{equation*}\]
+
+Parameterising $\phi_\theta$ as a deep neural network leads to several constraints:
+
+- How do we enforce invertibility ?
+
+- How do we compute its inverse ?
+
+- How do we compute the jacobian efficiently?
+
+Designing flows $\phi$ therefore requires trading-off expressivity (of the flow and thus of the probabilistic model) with the above mentioned considerations so that the flow can be trained efficiently.
+
+### Residual flow
+
+In particular, computing the determinant of the Jacobian is in general very expensive (as it would require $d$ automatic differentation passes in the flow) so we impose structure in $\phi$ 2 .
+
+Full-rank residual (Behrmann et al., 2019; Chen et al., 2010)
+
+Expressive flows relying on a residual connection have been proposed as an interesting middle-ground between expressivity and efficient determinant estimation. They take the form:
+
+\[\begin{equation}
+\label{eq:full_rank_res}
+\phi_k(x) = x + \delta ~u_k(x),
+\end{equation}\]
+
+where unbiased estimate of the log likelihood can be obtained 3 . As opposed to auto-regressive flows (Huang et al., 2018, Larochelle and Murray, 2011, Papamakarios et al., 2017), and low-rank residual normalising flows (Van Den Berg et al. 2018), the update in \eqref{eq:full_rank_res} has full rank Jacobian, typically leading to more expressive transformations.
+
+![Jacobian structure of different normalising flows.](assets/d15487ac_jac-structure.png)
+```
+
+Output format:
+Return strict JSON only:
+```json
+{
+  "delete_ranges": [
+    {
+      "start_text": "\\require{physics}",
+      "end_text": "\\nonumber\\"
+    }
+  ]
+}
+```
+
+Field definitions:
+- `delete_ranges`: a list of contiguous ranges that should be deleted from the original markdown
+- `start_text`: the full first markdown line of the range to delete
+- `end_text`: the full last markdown line of the range to delete
+
+Additional constraints:
+- If nothing should be removed, return `"delete_ranges": []`.
+- The ranges must not overlap.
+- `start_text` must be copied from the markdown excerpt exactly as one full line.
+- `end_text` must be copied from the markdown excerpt exactly as one full line.
+- Only mark lines for deletion if they are clearly noisy artifacts and not part of the actual article body.
+
+Think step by step, but return strict JSON only.

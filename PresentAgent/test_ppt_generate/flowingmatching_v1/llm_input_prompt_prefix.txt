@@ -1,0 +1,260 @@
+You are a markdown cleanup judge working for a presentation generation agent.
+This agent converts webpage HTML into markdown and later uses the markdown to build a structured document, presentation outline, slides, and narrated video.
+
+Task:
+You are given the beginning of the generated markdown.
+
+Your job is to decide whether the markdown opening contains noisy content that should be removed before document parsing.
+We are preparing a presentation from the current main webpage only.
+We only want the complete content of the current main page itself.
+We do not care about child links, recommended links, related articles, or any other linked pages, even if they are topically similar.
+
+The noisy content usually includes:
+- MathJax or LaTeX macro definitions
+- rendering setup code such as \require, \newcommand, \definecolor, \DeclareMathOperator
+- navigation remnants
+- table of contents blocks that appear before the real article starts
+- webpage boilerplate that is not part of the article body
+- decorative image-only or caption-only blocks that appear before the real article starts
+- linked-page previews, repository cards, recommended article cards, or other blocks that mainly point to another page instead of continuing the current page
+
+Important rules:
+- Do not delete the real article title.
+- Do not delete author information if it belongs to the actual article header.
+- Do not delete the first meaningful heading or paragraph of the article.
+- You may delete one or more noisy contiguous ranges if they clearly do not belong to the article body.
+- Do not rewrite markdown content.
+- Do not output cleaned markdown.
+- Only identify which contiguous ranges should be deleted.
+
+Input:
+Generated markdown excerpt:
+```text
+![Federico Sarrocco](assets/eecba9c9_federico-sarrocco.webp)
+
+Caption: Federico Sarrocco
+
+Learn how flow matching generates continuous data, such as robot actions, by denoising samples drawn from a simple noise distribution. Understand the key concepts, training process, and application in robotics.
+
+![Flow Matching Explained: From Noise to Robot Actions](assets/70bc7561_flow_matching.gif)
+
+Caption: Flow Matching Explained: From Noise to Robot Actions
+
+![FedeAi/flow-matching](assets/8c1f736a_image.png)
+
+Caption: FedeAi/flow-matching
+
+### GitHub - FedeAi/flow-matching
+
+Unlock smooth and continuous data generation for robotics with Flow Matching! Transform simple noise into precise, fluid robot actions and revolutionize your robotics workflows.
+
+Flow Matching is a cutting-edge framework in generative modeling that has pushed the boundaries in fields like image and speech generation, and now, robotics. By learning smooth transformations—flows—from simple noise distributions to complex target distributions, Flow Matching enables the creation of continuous data in a way that's both efficient and scalable.
+
+### The Core Intuition
+
+At its heart, Flow Matching involves training a neural network to model a velocity field that defines how data points transition over time. Imagine starting with random noise and, through a continuous process, gradually shaping it into precise robot joint movements. This approach is fundamentally different from traditional methods that directly predict actions, which can lead to jerky or unrealistic movements.
+
+By interpolating between a source distribution (like noise) and a target distribution (desired movements), Flow Matching produces smooth trajectories. This is particularly valuable in robotics, where generating fluid, natural movements enhances performance and integration into real-world environments.
+
+![Flow Matching Diagram](assets/73d1c327_image.jpg)
+
+Caption: Flow Matching Diagram
+
+Flow Matching's key components and their interactions: A velocity field defines the flow that generates probability paths. The framework simplifies complex flows with challenging boundary conditions (top) into more manageable conditional flows (middle). Arrows indicate dependencies. The velocity field is learned through loss functions, primarily using Conditional Flow Matching (CFM) loss in practice.
+
+Flow Matching Problem: Find u t θ \mathbf{u}_t^\theta u t θ ​ generating p t p_t p t ​ , with p 0 = p p_0 = p p 0 ​ = p and p 1 = q p_1 = q p 1 ​ = q .
+
+### Theoretical Foundations of Flow Matching
+
+Flow Matching is grounded in the concept of learning a velocity field (also known as a vector field). This velocity field defines a flow ψ t \psi_t ψ t ​ by solving an ordinary differential equation (ODE) through simulation. Essentially, a flow is a deterministic, time-continuous, bijective transformation of the d-dimensional Euclidean space R d \mathbb{R}^d R d .
+
+The primary objective is to construct a flow that transforms a sample X 0 ∼ p \mathbf{X_0} \sim \mathbf{p} X 0 ​ ∼ p from a source distribution p \mathbf{p} p into a target sample X 1 = ψ 1 ( X 0 ) \mathbf{X_1} = \psi_1(\mathbf{X_0}) X 1 ​ = ψ 1 ​ ( X 0 ​ ) such that X 1 ∼ q \mathbf{X_1} \sim \mathbf{q} X 1 ​ ∼ q , where q \mathbf{q} q is the desired target distribution.
+
+More specifically, the goal is to find the parameters of the flow defined as a learnable velocity u t θ \mathbf{u}_t^\theta u t θ ​ that generates intermediate distributions p t \mathbf{p}_t p t ​ with p 0 = p \mathbf{p}_0 = \mathbf{p} p 0 ​ = p and p 1 = q \mathbf{p}_1 = \mathbf{q} p 1 ​ = q for each t t t in ( 0 , 1 ) (0,1) ( 0 , 1 ) . This ensures a smooth transition from the source to target distribution.
+
+The Flow Matching Loss : The core of FM is the Flow Matching loss. It measures the difference between the learned velocity field and the ideal velocity field that would perfectly generate the probability path. By minimizing this loss, the model learns to guide the source distribution along the desired path towards the target data distribution.
+
+Flow models, introduced to the machine learning community as Continuous Normalizing Flows (CNFs), initially involved maximizing the likelihood of training examples by simulating and differentiating the flow during training. However, due to computational challenges, subsequent research focused on learning these flows without simulation, leading to modern Flow Matching algorithms.
+
+The Flow Matching framework involves three key steps:
+
+Probability Path Selection : Choose a probability path p t p_t p t ​ that smoothly interpolates between the source distribution p p p and the target distribution q q q .
+
+Conditional Simplification : To make learning the velocity field easier, FM employs a trick called conditioning. Instead of directly learning a complex velocity field for the entire dataset, it breaks the problem down into simpler conditional velocity fields. Each conditional velocity field focuses on transforming the source noise into a specific data sample from the dataset.
+
+Velocity Field Training : Learn a velocity field that acts as a guide for transforming source samples into target samples. Think of this field as a set of directions at each point in space, showing how samples should "flow" from noise to meaningful data. The field is typically implemented as a neural network and trained to generate the desired probability path ψ t \psi_t ψ t ​ through:
+
+- Learning the optimal direction and speed for each point in the data space
+
+- Ensuring smooth transitions between the source noise distribution and target data distribution
+
+- Minimizing the difference between the predicted flow and the ideal transformation path
+
+In essence, FM leverages the concept of smoothly transforming a simple distribution into a complex one by learning the dynamics of this transformation through velocity fields and a tailored loss function. This approach has proven successful in generating high-quality samples across various domains, making it a versatile tool for generative modeling.
+
+### Loss Function Details
+
+The Flow Matching (FM) loss function is central to training the model, as it measures how well the learned velocity field aligns with the ideal velocity field along the probability path from the source to the target distribution.
+
+The FM loss is defined as:
+
+Where:
+
+- L FM ( θ ) L_{\text{FM}}(\theta) L FM ​ ( θ ) is the flow matching loss function.
+
+- θ \theta θ represents the parameters of the learnable velocity field u t θ \mathbf{u}_t^\theta u t θ ​ .
+
+- X t \mathbf{X}_t X t ​ is a sample from the intermediate distribution p t p_t p t ​ at time t t t .
+
+- D ( ⋅ , ⋅ ) D(\cdot, \cdot) D ( ⋅ , ⋅ ) is a dissimilarity measure, such as the squared Euclidean norm.
+
+This loss function encourages the learned velocity field u t θ \mathbf{u}_t^\theta u t θ ​ to match the ideal velocity field u t \mathbf{u}_t u t ​ , effectively guiding samples along the desired probability path.
+
+However, computing the ideal velocity field u t \mathbf{u}_t u t ​ for the entire dataset is often impractical due to computational constraints. To overcome this, we utilize Conditional Flow Matching (CFM) , which simplifies the problem by conditioning on individual data points.
+
+The CFM loss is formulated as:
+
+Where:
+
+- Z \mathbf{Z} Z is the conditioning variable (e.g., a specific data sample or observation).
+
+- X t \mathbf{X}_t X t ​ is now sampled from the conditional distribution p t ( ⋅ ∣ Z ) p_t(\cdot \mid \mathbf{Z}) p t ​ ( ⋅ ∣ Z ) .
+
+- u t ( X t ∣ Z ) \mathbf{u}_t(\mathbf{X}_t \mid \mathbf{Z}) u t ​ ( X t ​ ∣ Z ) is the ideal conditional velocity field.
+
+By minimizing the CFM loss, the model learns to approximate the ideal conditional velocity field, making the training process more efficient and scalable.
+
+#### Advantages of Conditional Flow Matching:
+
+- Computational Efficiency : Conditioning reduces the complexity of computing the ideal velocity field, allowing for feasible training on large datasets.
+
+- Improved Learning : The model focuses on learning transformations relevant to specific conditions, leading to better performance.
+
+- Scalability : CFM is suitable for high-dimensional data, such as robotic action sequences, enhancing applicability in complex domains.
+
+In essence, the CFM loss serves as a continuous feedback mechanism, refining the model's velocity field to closely follow the desired probability path. This results in the generation of realistic and high-quality data samples that align with the target distribution.
+
+### Probability Density Path
+
+The Probability Density Path p t p_t p t ​ is a fundamental concept in Flow Matching. It represents a smooth, continuous transformation from a simple source distribution (like random noise) at time t = 0 t=0 t = 0 to the complex target distribution (your data) at time t = 1 t=1 t = 1 . Think of it as a journey where noise gradually becomes meaningful data as time progresses.
+
+Instead of attempting to model the entire data distribution at once, Flow Matching constructs this path by combining multiple conditional probability paths . Each conditional path focuses on transforming a specific noise sample ( x 0 x_0 x 0 ​ ) into a target data point ( x 1 x_1 x 1 ​ ), making the learning process more manageable.
+
+#### Defining the Conditional Probability Path
+
+Here's how you can define the conditional probability path:
+
+Choose a Conditional Flow : An affine conditional flow is commonly used due to its simplicity:
+
+This function ψ t \psi_t ψ t ​ blends the noise sample x 0 x_0 x 0 ​ and the target data point x 1 x_1 x 1 ​ according to time-dependent parameters α t \alpha_t α t ​ and σ t \sigma_t σ t ​ .
+
+Select a Scheduler for α t \alpha_t α t ​ and σ t \sigma_t σ t ​ :
+
+These parameters determine how noise and data mix over time. You can choose between:
+
+Linear Schedule :
+
+This schedule is simple and straightforward.
+
+Variance Preserving Schedule :
+
+This approach often leads to better sample quality.
+
+Other options include cosine or polynomial schedules, tailored to your specific data characteristics.
+
+Compute the Intermediate Sample x t x_t x t ​ :
+
+At any given time t t t , compute:
+
+This gives you a point on the conditional probability path, representing the state of the sample at time t t t as it transitions from noise to data.
+
+#### Aggregating Conditional Paths
+
+By considering all possible pairs of x 0 x_0 x 0 ​ and x 1 x_1 x 1 ​ , we aggregate these conditional paths to form the overall probability density path:
+
+Where:
+
+- p t ∣ Z ( x ∣ z ) p_{t \mid Z}(x \mid z) p t ∣ Z ​ ( x ∣ z ) is the conditional probability path given data point z z z .
+
+- p Z ( z ) p_Z(z) p Z ​ ( z ) is the distribution of your data (approximated by your dataset).
+
+This equation effectively averages over all conditional paths, weighted by the probability of each data point, creating a comprehensive path from the source to the target distribution.
+
+### Training Process in Detail
+
+During training, we use a clever trick called "conditional flow matching." Instead of trying to learn the entire path directly, we:
+
+- Sample a target action x 1 x_1 x 1 ​ from our training data
+
+- Sample a noise vector x 0 x_0 x 0 ​ from our starting distribution
+
+- Pick a random time τ τ τ between 0 and 1
+
+- Create an interpolated point: x τ = τ x 1 + ( 1 − τ ) x 0 x_τ = τx_1 + (1-τ)x_0 x τ ​ = τ x 1 ​ + ( 1 − τ ) x 0 ​
+
+The model then learns to predict the correct direction this point should move by minimizing the loss:
+
+L ( θ ) = E τ , x 0 , x 1 ∥ v θ ( x τ , c , τ ) − x 1 − x 0 1 − τ ∥ 2 L(θ) = E_{τ,x_0,x_1} \|v_θ(x_τ,c,τ) - \frac{x_1 - x_0}{1-τ}\|^2 L ( θ ) = E τ , x 0 ​ , x 1 ​ ​ ∥ v θ ​ ( x τ ​ , c , τ ) − 1 − τ x 1 ​ − x 0 ​ ​ ∥ 2
+
+### Key Works and Citations
+
+- Chen et al. (2018) : Neural Ordinary Differential Equations.
+
+- Grathwohl et al. (2018) : FFJORD: Free-form Continuous Dynamics for Scalable Reversible Generative Models.
+
+- Lipman et al. (2022) : Flow Matching for Generative Modeling.
+
+- Albergo and Vanden-Eijnden (2022) : Building Normalizing Flows with Stochastic Interpolants.
+
+- Neklyudov et al. (2023) : A More General Framework for Generative Modeling via Paths on Probability Manifolds.
+
+- Lipman et al. (2024) : Flow Matching Guide and Code.
+
+## Application to Robotics
+
+In robotics, we often need to translate discrete commands ("pick up the cup") into continuous, smooth motions. Flow matching excels here because:
+
+- The conditioning information c c c can include both discrete commands and continuous state information (joint angles, images)
+
+- The generated actions are naturally smooth due to the continuous nature of the flow
+
+- The model can capture complex relationships between multiple joints and time steps
+
+For example, in the π0 model ( Physical Intelligence ) , they use flow matching to generate "action chunks" - sequences of continuous controls that accomplish a desired motion.
+
+The process works like this:
+
+- The model receives a discrete command and current robot state
+
+- It initializes a sequence of random noise vectors
+
+- The flow matching process gradually denoises these vectors into a coherent sequence of actions
+
+```
+
+Output format:
+Return strict JSON only:
+```json
+{
+  "delete_ranges": [
+    {
+      "start_text": "\\require{physics}",
+      "end_text": "\\nonumber\\"
+    }
+  ]
+}
+```
+
+Field definitions:
+- `delete_ranges`: a list of contiguous ranges that should be deleted from the original markdown
+- `start_text`: the full first markdown line of the range to delete
+- `end_text`: the full last markdown line of the range to delete
+
+Additional constraints:
+- If nothing should be removed, return `"delete_ranges": []`.
+- The ranges must not overlap.
+- `start_text` must be copied from the markdown excerpt exactly as one full line.
+- `end_text` must be copied from the markdown excerpt exactly as one full line.
+- Only mark lines for deletion if they are clearly noisy artifacts and not part of the actual article body.
+
+Think step by step, but return strict JSON only.

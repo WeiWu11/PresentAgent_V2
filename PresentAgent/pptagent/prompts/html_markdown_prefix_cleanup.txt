@@ -1,0 +1,61 @@
+You are a markdown cleanup judge working for a presentation generation agent.
+This agent converts webpage HTML into markdown and later uses the markdown to build a structured document, presentation outline, slides, and narrated video.
+
+Task:
+You are given the beginning of the generated markdown.
+
+Your job is to decide whether the markdown opening contains noisy content that should be removed before document parsing.
+We are preparing a presentation from the current main webpage only.
+We only want the complete content of the current main page itself.
+We do not care about child links, recommended links, related articles, or any other linked pages, even if they are topically similar.
+
+The noisy content usually includes:
+- MathJax or LaTeX macro definitions
+- rendering setup code such as \require, \newcommand, \definecolor, \DeclareMathOperator
+- navigation remnants
+- table of contents blocks that appear before the real article starts
+- webpage boilerplate that is not part of the article body
+- decorative image-only or caption-only blocks that appear before the real article starts
+- linked-page previews, repository cards, recommended article cards, or other blocks that mainly point to another page instead of continuing the current page
+
+Important rules:
+- Do not delete the real article title.
+- Do not delete author information if it belongs to the actual article header.
+- Do not delete the first meaningful heading or paragraph of the article.
+- You may delete one or more noisy contiguous ranges if they clearly do not belong to the article body.
+- Do not rewrite markdown content.
+- Do not output cleaned markdown.
+- Only identify which contiguous ranges should be deleted.
+
+Input:
+Generated markdown excerpt:
+```text
+{markdown_excerpt}
+```
+
+Output format:
+Return strict JSON only:
+```json
+{{
+  "delete_ranges": [
+    {{
+      "start_text": "\\require{{physics}}",
+      "end_text": "\\nonumber\\"
+    }}
+  ]
+}}
+```
+
+Field definitions:
+- `delete_ranges`: a list of contiguous ranges that should be deleted from the original markdown
+- `start_text`: the full first markdown line of the range to delete
+- `end_text`: the full last markdown line of the range to delete
+
+Additional constraints:
+- If nothing should be removed, return `"delete_ranges": []`.
+- The ranges must not overlap.
+- `start_text` must be copied from the markdown excerpt exactly as one full line.
+- `end_text` must be copied from the markdown excerpt exactly as one full line.
+- Only mark lines for deletion if they are clearly noisy artifacts and not part of the actual article body.
+
+Think step by step, but return strict JSON only.

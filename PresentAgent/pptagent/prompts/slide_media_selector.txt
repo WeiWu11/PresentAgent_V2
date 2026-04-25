@@ -1,0 +1,66 @@
+You are a slide media selection judge working for a presentation video agent.
+This agent turns document content and visual content into PPT slides and narrated videos to realize a presentation.
+
+Input:
+Here is the presentation outline:
+```
+{{presentation_outline}}
+```
+
+Here is the slide content:
+```
+{{slide_content}}
+```
+
+Here is the slide description:
+```
+{{slide_description}}
+```
+
+Target media type:
+```
+{{media_type}}
+```
+
+Search query:
+```
+{{search_query}}
+```
+
+Candidate media results:
+```
+{{candidate_media}}
+```
+
+Task:
+Please review the presentation outline, the current slide, and the candidate media results, and select the single best media item for this slide.
+
+Selection Criteria:
+- Choose the candidate that most directly helps explain this specific slide.
+- Use the presentation outline as global context so the selected media fits the role of this slide within the whole presentation.
+- Prefer media that is tightly aligned with the current slide's concept, mechanism, or example.
+- If the target media type is "video", prefer dynamic media that clearly shows motion, process, or progression.
+- If the target media type is "image", prefer static media that is clean, informative, and easy to understand on a slide.
+- Do not choose a candidate just because it is broadly relevant to the topic; it must be useful for this exact slide.
+- If none of the candidates are good enough, reject them.
+
+Additional Rules:
+- Keep the explanation short and focused on slide usefulness.
+- If no candidate is suitable, set selected_index to -1 and selected_path to an empty string.
+- selected_index must correspond to the candidate order in Candidate media results.
+
+Example Output:
+{{
+  "selected_index": 1,
+  "selected_path": "/abs/path/to/media.mp4",
+  "caption": "Animation showing how samples move along the learned transport path."
+}}
+
+Rejected Example Output:
+{{
+  "selected_index": -1,
+  "selected_path": "",
+  "caption": ""
+}}
+
+Please think step by step and return strict JSON only.

@@ -1,0 +1,1415 @@
+<!DOCTYPE html><!-- Last Published: Sat Mar 21 2026 04:16:14 GMT+0000 (Coordinated Universal Time) --><html data-wf-domain="www.sapien.io" data-wf-page="685190e8b8fe79443f149585" data-wf-site="685190e8b8fe79443f1495a5" lang="en" data-wf-collection="685190e8b8fe79443f1495dc" data-wf-item-slug="how-diffusion-models-work-a-detailed-step-by-step-guide"><head><meta charset="utf-8"/><title>How Diffusion Models Work: An In-Depth, Step-by-Step Guide</title><meta content="Discover how diffusion models work with this detailed, step-by-step guide. Learn the key principles behind diffusion processes and their applications in AI." name="description"/><meta content="How Diffusion Models Work: An In-Depth, Step-by-Step Guide" property="og:title"/><meta content="Discover how diffusion models work with this detailed, step-by-step guide. Learn the key principles behind diffusion processes and their applications in AI." property="og:description"/><meta content="https://cdn.prod.website-files.com/685190e8b8fe79443f1495b9/686470db4ea25761928b0ec5_685190e8b8fe79443f149c45_How%2520Diffusion%2520Models%2520Work_%2520A%2520Detailed%2520Step-by-Step%2520Guide.jpeg" property="og:image"/><meta content="How Diffusion Models Work: An In-Depth, Step-by-Step Guide" property="twitter:title"/><meta content="Discover how diffusion models work with this detailed, step-by-step guide. Learn the key principles behind diffusion processes and their applications in AI." property="twitter:description"/><meta content="https://cdn.prod.website-files.com/685190e8b8fe79443f1495b9/686470db4ea25761928b0ec5_685190e8b8fe79443f149c45_How%2520Diffusion%2520Models%2520Work_%2520A%2520Detailed%2520Step-by-Step%2520Guide.jpeg" property="twitter:image"/><meta property="og:type" content="website"/><meta content="summary_large_image" name="twitter:card"/><meta content="width=device-width, initial-scale=1" name="viewport"/><link href="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/css/sapienredesign.webflow.shared.351b1124c.min.css" rel="stylesheet" type="text/css" integrity="sha384-NRsRJMUTdBRrNXSwLqnIHghZu8vlFA4HN2e8aAy1SCIdNiZwB3WhRaFkPSTfZqjD" crossorigin="anonymous"/><script type="text/javascript">!function(o,c){var n=c.documentElement,t=" w-mod-";n.className+=t+"js",("ontouchstart"in o||o.DocumentTouch&&c instanceof DocumentTouch)&&(n.className+=t+"touch")}(window,document);</script><link href="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/6994eb2cba0450ef70b96a3d_Favicon.png" rel="shortcut icon" type="image/x-icon"/><link href="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/6994eb223f922d31ff513edf_Webclip.png" rel="apple-touch-icon"/><link href="https://www.sapien.io/blog/how-diffusion-models-work-a-detailed-step-by-step-guide" rel="canonical"/><script>(function(w,i,g){w[g]=w[g]||[];if(typeof w[g].push=='function')w[g].push.apply(w[g],Array.isArray(i)?i:[i]);})(window,['G-NJQP6S9QPD'],'google_tags_first_party');</script><script async="" src="/9i1h7htkfq16Njg1MTkwZThiOGZlNzk0NDNmMTQ5NWE1/ax9_nnMr53F2yzRJX6pEjcx9U8E"></script><script type="text/javascript">window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('set', 'developer_id.dZGVlNj', true);gtag('set', 'developer_id.dYWYxNW', true);gtag('js', new Date());gtag('config', 'G-NJQP6S9QPD');</script><!-- Consent Management -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  if(localStorage.getItem('consentMode') === null){
+    gtag('consent', 'default', {
+      'ad_storage': 'denied',
+      'ad_user_data': 'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage': 'denied',
+      'personalization_storage': 'denied',
+      'security_storage': 'denied',
+      'functionality_storage': 'denied',
+    });
+    gtag('set', 'ads_data_redaction', false);
+  } else {
+    gtag('consent', 'default', JSON.parse(localStorage.getItem('consentMode')));
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-WZCJGBW9');</script>
+
+<!-- AdRoll Pixel -->
+<script type="text/javascript">
+  adroll_adv_id = "NMCTFZA3XFCN5P4GHBHGHB";
+  adroll_pix_id = "3GTNKUH5XNEEZEB5XKB2ON";
+  adroll_version = "2.0";
+  (function(w, d, e, o, a) {
+    w.__adroll_loaded = true;
+    w.adroll = w.adroll || [];
+    w.adroll.f = ['setProperties', 'identify', 'track', 'identify_email', 'get_cookie'];
+    var roundtripUrl = "https://s.adroll.com/j/" + adroll_adv_id + "/roundtrip.js";
+    for (a = 0; a < w.adroll.f.length; a++) {
+      w.adroll[w.adroll.f[a]] = w.adroll[w.adroll.f[a]] || (function(n) {
+        return function() { w.adroll.push([n, arguments]) }
+      })(w.adroll.f[a])
+    }
+    e = d.createElement('script');
+    o = d.getElementsByTagName('script')[0];
+    e.async = 1;
+    e.src = roundtripUrl;
+    o.parentNode.insertBefore(e, o);
+  })(window, document);
+  adroll.track("pageView");
+</script>
+
+<!-- LinkedIn Insight Tag -->
+<script type="text/javascript">
+  _linkedin_partner_id = "7055452";
+  window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
+  window._linkedin_data_partner_ids.push(_linkedin_partner_id);
+</script>
+<script type="text/javascript">
+  (function(l) {
+    if (!l){window.lintrk = function(a,b){window.lintrk.q.push([a,b])};
+    window.lintrk.q=[]}
+    var s = document.getElementsByTagName("script")[0];
+    var b = document.createElement("script");
+    b.type = "text/javascript";b.async = true;
+    b.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
+    s.parentNode.insertBefore(b, s);
+  })(window.lintrk);
+</script>
+<noscript>
+  <img height="1" width="1" style="display:none;" alt="" src="https://px.ads.linkedin.com/collect/?pid=7055452&fmt=gif" />
+</noscript>
+
+<!-- Finsweet Attributes -->
+<script async type="module" src="https://cdn.jsdelivr.net/npm/@finsweet/attributes@2/attributes.js" fs-list></script>
+
+<!-- CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lenis@1.2.3/dist/lenis.css">
+<link rel="stylesheet" href="https://slater.app/19169/56294.css">
+
+<!-- Plausible Analytics -->
+<script defer data-domain="sapien.io" src="https://plausible.io/js/script.js"></script>
+<!-- table of content -->
+
+<style>
+/* Table of Contents Styles */
+#toc {
+    font-size: 1rem;
+}
+
+#toc a {
+    text-decoration: none !important;
+    border: none;
+    background: transparent;
+    display: block;
+    line-height: 1.2;
+    border-radius: 4px;
+    transition: color 300ms ease-in-out, transform 150ms ease-in-out;
+    color: #a2a9b8; /* Default link color */
+    font-weight: 600; /* Semi-bold text */
+}
+
+#toc a:hover {
+    color: #1b2338; /* Hover color */
+    transform: translateX(0px); /* Subtle movement effect */
+}
+
+#toc a.active {
+    color: #00afeb; /* Active link color */
+}
+
+#toc ul {
+    list-style: none;
+    margin: 0 !important;
+    padding: 0;
+    gap: 1rem; /* Vertical gap */
+    display: flex;
+    flex-direction: column;
+}
+
+#toc li {
+    padding: 0; /* Remove all padding */
+}
+
+#toc h2 {
+    font-size: 1rem;
+}
+
+#toc h3 {
+    font-size: 0.875rem; /* 2px smaller than h2 */
+    padding-left: 8px; /* Indentation */
+}
+
+#toc h4 {
+    font-size: 0.875rem; /* 2px smaller than h2 */
+    padding-left: 16px; /* Indentation (stacked from h3) */
+}
+
+/* Smooth Scrolling Offset */
+html {
+    scroll-padding-top: 6rem; /* Global offset when clicking TOC links */
+}
+
+/* Additional offset in case scroll-padding doesn't work */
+#toc-target h2, 
+#toc-target h3, 
+#toc-target h4 {
+    scroll-margin-top: 8rem;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll('#toc a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop - 96, // 6rem offset
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+});
+</script>
+
+<!-- Schema Markup -->
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "How Diffusion Models Work: A Detailed Step-by-Step Guide",
+  "url": "https://www.sapien.io/blog/how-diffusion-models-work-a-detailed-step-by-step-guide",
+  "datePublished": "Jul 01, 2025",
+  "dateModified": "Jul 01, 2025",
+  "author": {
+    "@type": "Person",
+    "name": ""
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Sapien",
+    "url": "https://www.sapien.io",
+    "logo": "https://www.sapien.io/sapien-logo.svg"
+  },
+  "description": "Discover how diffusion models work with this detailed, step-by-step guide. Learn the key principles behind diffusion processes and their applications in AI.",
+  "mainEntityOfPage": "https://www.sapien.io/blog/how-diffusion-models-work-a-detailed-step-by-step-guide",
+  "image": "https://cdn.prod.website-files.com/685190e8b8fe79443f1495b9/686470db4ea25761928b0ec5_685190e8b8fe79443f149c45_How%2520Diffusion%2520Models%2520Work_%2520A%2520Detailed%2520Step-by-Step%2520Guide.jpeg"
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://www.sapien.io"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Blog",
+      "item": "https://www.sapien.io/blog"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "How Diffusion Models Work: A Detailed Step-by-Step Guide",
+      "item": "https://www.sapien.io/blog/how-diffusion-models-work-a-detailed-step-by-step-guide"
+    }
+  ]
+}
+</script>
+</head><body class="body"><div data-theme-transition="" data-transition-wrap="" data-wf--transition--variant="base" class="transition"><div data-transition-panel="" class="transition__panel"><span data-transition-label="" class="transition__label"><span data-transition-label-text=""></span></span></div></div><div class="page-wrapper"><div><div class="global-styles w-embed"><style>
+
+  html { font-size: calc(0.625rem + 0.41666666666666663vw); }
+  @media screen and (max-width:1920px) { html { font-size: calc(0.625rem + 0.41666666666666674vw); } }
+  @media screen and (max-width:1440px) { html { font-size: calc(0.39866369710467703rem + 0.6681514476614699vw); } }
+  @media screen and (max-width:991px) { html { font-size: 1rem; } }
+  @media screen and (max-width:479px) { html { font-size: 1rem; } }
+  
+
+:is([class*="text-trim"], h1, h2, h3, h4, h5, h6, p, blockquote) {
+	display: flow-root;
+}
+:is([class*="text-trim"], h1, h2, h3, h4, h5, h6, p, blockquote)::before {
+	content: "";
+	display: table;
+	margin-bottom: calc(-0.5lh + 0.51em);
+}
+:is([class*="text-trim"], h1, h2, h3, h4, h5, h6, p, blockquote)::after {
+	content: "";
+	display: table;
+	margin-bottom: calc(-0.5lh + 0.3em);
+}
+
+  
+html, body { overscroll-behavior: none; }
+
+body, * {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  text-rendering: optimizeLegibility;
+}
+
+* {
+font-variant-ligatures: none;
+}
+     
+a {
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  -webkit-tap-highlight-color: transparent; /* For some Androids */
+  text-underline-offset: 0.3rem;
+}
+
+input, textarea, select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 0;
+}
+
+/* Focus state style for keyboard navigation for the focusable elements */
+*[tabindex]:focus-visible,
+  input[type="file"]:focus-visible {
+   outline: 0.125rem solid #4d65ff;
+   outline-offset: 0.125rem;
+}
+
+/* Set color style to inherit */
+.inherit-color * {
+    color: inherit;
+}
+
+/* Get rid of top margin on first element in any rich text element */
+.w-richtext > :not(div):first-child, .w-richtext > div:first-child > :first-child {
+  margin-top: 0 !important;
+}
+
+/* Get rid of bottom margin on last element in any rich text element */
+.w-richtext>:last-child, .w-richtext ol li:last-child, .w-richtext ul li:last-child {
+	margin-bottom: 0 !important;
+}
+
+
+/* Make sure containers never lose their center alignment */
+.container-medium,.container-small, .container-large {
+	margin-right: auto !important;
+  margin-left: auto !important;
+}
+
+a,
+.w-input,
+.w-select,
+.w-tab-link,
+.w-nav-link,
+.w-dropdown-btn,
+.w-dropdown-toggle,
+.w-dropdown-link {
+  color: inherit;
+  text-decoration: inherit;
+  font-size: inherit;
+}
+
+/* Apply "..." after 3 lines of text */
+.text-style-3lines {
+	display: -webkit-box;
+	overflow: hidden;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+}
+
+/* Apply "..." after 2 lines of text */
+.text-style-2lines {
+	display: -webkit-box;
+	overflow: hidden;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+}
+
+/* These classes are never overwritten */
+.hide {
+  display: none !important;
+}
+
+@media screen and (max-width: 991px) {
+    .hide, .hide-tablet {
+        display: none !important;
+    }
+}
+  @media screen and (max-width: 767px) {
+    .hide-mobile-landscape{
+      display: none !important;
+    }
+}
+  @media screen and (max-width: 479px) {
+    .hide-mobile{
+      display: none !important;
+    }
+}
+ 
+.margin-0 {
+  margin: 0rem !important;
+}
+  
+.padding-0 {
+  padding: 0rem !important;
+}
+
+.spacing-clean {
+padding: 0rem !important;
+margin: 0rem !important;
+}
+
+.margin-top {
+  margin-right: 0rem !important;
+  margin-bottom: 0rem !important;
+  margin-left: 0rem !important;
+}
+
+.padding-top {
+  padding-right: 0rem !important;
+  padding-bottom: 0rem !important;
+  padding-left: 0rem !important;
+}
+  
+.margin-right {
+  margin-top: 0rem !important;
+  margin-bottom: 0rem !important;
+  margin-left: 0rem !important;
+}
+
+.padding-right {
+  padding-top: 0rem !important;
+  padding-bottom: 0rem !important;
+  padding-left: 0rem !important;
+}
+
+.margin-bottom {
+  margin-top: 0rem !important;
+  margin-right: 0rem !important;
+  margin-left: 0rem !important;
+}
+
+.padding-bottom {
+  padding-top: 0rem !important;
+  padding-right: 0rem !important;
+  padding-left: 0rem !important;
+}
+
+.margin-left {
+  margin-top: 0rem !important;
+  margin-right: 0rem !important;
+  margin-bottom: 0rem !important;
+}
+  
+.padding-left {
+  padding-top: 0rem !important;
+  padding-right: 0rem !important;
+  padding-bottom: 0rem !important;
+}
+  
+.margin-horizontal {
+  margin-top: 0rem !important;
+  margin-bottom: 0rem !important;
+}
+
+.padding-horizontal {
+  padding-top: 0rem !important;
+  padding-bottom: 0rem !important;
+}
+
+.margin-vertical {
+  margin-right: 0rem !important;
+  margin-left: 0rem !important;
+}
+  
+.padding-vertical {
+  padding-right: 0rem !important;
+  padding-left: 0rem !important;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overflow: -moz-scrollbars-none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+[footer-link]:hover {
+  color: #0000FF;
+}
+
+html.wf-design-mode [href="#"] {
+	outline: 1px solid yellow !important;
+}
+
+.hamburger-line.menu-active {
+  background-color: #111 !important;
+}
+
+.logo.menu-active {
+  color: #111 !important;
+}
+
+/* Target the selected option when it's NOT the first option */
+.fs-selectcustom_link.w--current:not(:first-of-type) {
+    color: #111111;
+}
+
+/* Target the toggle text when a non-first option is selected */
+.fs-selectcustom_dropdown:has(.fs-selectcustom_link.w--current:not(:first-of-type)) .toggle-text {
+    color: #111111;
+}
+
+/* Hide github input by default */
+[github-input] {
+  display: none !important;
+}
+
+/* Show it only when Builder is selected */
+.waitlist-form:has(#Builder:checked) [github-input] {
+  display: block !important;
+}
+
+/* Change label text to white when radio is checked */
+.radion-button-field input:checked ~ .radio-lbl {
+  color: #000000 !important;
+}
+
+[data-fade-in] {
+  opacity: 0;
+}
+
+
+</style></div><div class="background-gradients w-embed"><style>
+
+.background-lightgrey {
+background: conic-gradient(from 56.1deg at 50.2% 133.77%, #F6F6F6 -12.91deg, #F1F3F5 232.63deg, #F6F6F6 347.09deg, #F1F3F5 592.63deg);
+
+}
+
+.background-chrome {
+background: conic-gradient(from 70.55deg at 50.2% 133.77%, #C0C2C1 -12.91deg, #8E9BA1 217.27deg, #C0C2C1 347.09deg, #8E9BA1 577.27deg);
+}
+
+.background-water {
+background: conic-gradient(from 56.1deg at 50.2% 133.77%, #788B93 -12.91deg, #465967 217.27deg, #788B93 347.09deg, #465967 577.27deg);
+}
+
+.background-night {
+background: conic-gradient(from 56.1deg at 50.2% 133.77%, #33434F -12.91deg, #18232C 217.27deg, #33434F 347.09deg, #18232C 577.27deg);
+
+}
+
+</style></div><div class="nav-light w-embed"><style>
+[nav-link]:hover {
+  opacity: 1;
+}
+
+body:has([nav-link]:hover) [nav-link]:not(:hover) {
+  opacity: 0.3;
+}
+</style></div></div><div class="page-css w-embed"><style>
+
+.blog-item:hover .blog-img-wrapper {
+    opacity: 1 !important;
+}
+
+</style></div><div class="nav-absolute"><nav data-wf--nav--variant="alt" class="nav-main w-variant-5f504fee-2153-3d43-a647-81539cd29fbc"><div class="nav-container"><div id="w-node-dc27458a-c8e5-4623-efb6-307240359d65-40359d63" class="nav-left"><a href="/" class="link-wrapper menu-active w-inline-block"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 359 80" fill="none" class="logo"><path fill-rule="evenodd" clip-rule="evenodd" d="M223.381 16.3499C227.083 16.3499 230.393 17.3407 233.31 19.3225C236.283 21.3043 238.583 24.1315 240.209 27.8035C241.892 31.4174 242.734 35.6725 242.734 40.5686C242.734 45.4647 241.892 49.778 240.209 53.5084C238.583 57.1805 236.311 60.0076 233.394 61.9894C230.533 63.9711 227.307 64.962 223.717 64.962C217.603 64.962 213.143 62.7469 210.338 58.3171H210.002V79.9129H196.623V17.4863H209.497V23.6066H209.833C212.414 18.7688 216.93 16.3499 223.381 16.3499ZM219.173 26.8417C216.144 26.8417 213.732 28.0075 211.937 30.339C210.198 32.6704 209.329 36.1094 209.329 40.6557C209.329 45.2605 210.198 48.7289 211.937 51.0605C213.732 53.3919 216.144 54.5577 219.173 54.5577C222.315 54.5577 224.755 53.3919 226.494 51.0605C228.233 48.7289 229.103 45.2605 229.103 40.6557C229.103 36.1094 228.205 32.6704 226.41 30.339C224.671 28.0075 222.259 26.8417 219.173 26.8417Z" fill="currentColor"></path><path d="M118.371 0C125.102 3.2373e-05 130.656 1.66141 135.031 4.98378C139.113 8.02884 141.754 12.3421 142.956 17.9235H128.886C128.262 15.9972 127.226 14.4525 125.776 13.2898C123.812 11.716 121.176 10.929 117.866 10.929C114.949 10.929 112.621 11.5991 110.882 12.9397C109.143 14.222 108.274 15.8543 108.274 17.836C108.274 19.6429 108.919 21.0128 110.209 21.9454C111.499 22.8197 113.463 23.5776 116.099 24.2188L125.776 26.6667C129.983 27.7741 133.349 28.9107 135.873 30.0764C138.397 31.1839 140.529 33.0202 142.268 35.5849C144.063 38.1495 144.96 41.6758 144.96 46.1638C144.96 52.4588 142.576 57.2096 137.808 60.4154C133.04 63.6211 126.982 65.2241 119.633 65.2241C112.06 65.2241 105.777 63.417 100.785 59.8032C95.8483 56.1894 93.0157 51.0599 92.2864 44.4151C92.2399 43.9909 92.1992 43.6135 92.164 43.2787H106.456C106.844 46.9476 108.207 49.6579 110.545 51.4097C113.014 53.2165 116.099 54.1201 119.801 54.1201C122.943 54.1201 125.495 53.4792 127.458 52.1969C129.422 50.8563 130.403 49.0199 130.403 46.6884C130.403 44.5319 129.674 42.9581 128.216 41.9672C126.813 40.9181 124.401 39.9564 120.979 39.0821L111.808 36.6338C108.105 35.5846 105.048 34.5065 102.636 33.3991C100.28 32.2333 98.2884 30.4846 96.6617 28.1532C95.0349 25.8217 94.2216 22.6739 94.2216 18.7103C94.2216 14.7468 95.2595 11.3659 97.3351 8.56814C99.4106 5.77045 102.271 3.64295 105.918 2.18579C109.564 0.728615 113.715 0 118.371 0Z" fill="currentColor"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M171.488 16.3499C178.164 16.3499 183.184 17.7198 186.55 20.4594C189.916 23.1989 191.599 26.9876 191.599 31.8255V63.8251H178.304V58.5792C177.126 60.561 175.218 62.1351 172.582 63.3009C170.002 64.4083 167.225 64.962 164.252 64.962C161.447 64.962 158.866 64.4083 156.51 63.3009C154.154 62.1934 152.275 60.6193 150.873 58.5792C149.471 56.4809 148.769 54.0328 148.769 51.2351C148.769 46.5138 150.256 43.0165 153.229 40.7433C156.258 38.4118 160.858 36.8381 167.028 36.022C171.348 35.4392 174.293 34.7978 175.863 34.0984C177.434 33.3407 178.22 32.2917 178.22 30.9512C178.22 29.3191 177.631 28.0657 176.453 27.1913C175.275 26.2588 173.535 25.7924 171.236 25.7923C169.272 25.7924 167.533 26.3465 166.019 27.4539C164.56 28.5614 163.522 30.1643 162.905 32.2626L150.452 30.6886C151.462 26.2005 153.818 22.7032 157.52 20.1968C161.279 17.6322 165.935 16.3499 171.488 16.3499ZM178.22 41.5301C177.603 41.9964 176.677 42.3755 175.443 42.6669C174.209 42.9584 172.245 43.3371 169.553 43.8034C167.365 44.1531 165.598 44.8817 164.252 45.9892C162.962 47.0966 162.317 48.5539 162.317 50.3607C162.317 52.0511 162.849 53.3918 163.915 54.3827C165.037 55.3735 166.496 55.8692 168.29 55.8692C169.805 55.8692 171.32 55.5193 172.835 54.8198C174.349 54.1204 175.611 53.013 176.621 51.4976C177.687 49.9821 178.22 48.1166 178.22 45.9016V41.5301Z" fill="currentColor"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M287.692 16.3499C294.703 16.3499 300.285 18.4774 304.436 22.7322C308.587 26.9289 310.663 32.9328 310.663 40.7433C310.663 41.9673 310.635 42.8708 310.579 43.4537H278.352C278.408 47.1259 279.277 50.0695 280.96 52.2844C282.643 54.441 284.887 55.5191 287.692 55.5191C290.328 55.5191 292.348 54.8782 293.75 53.5959C295.152 52.3136 296.05 50.7686 296.442 48.9617L310.158 49.9236C309.541 52.3717 308.363 54.7324 306.624 57.0056C304.885 59.2788 302.417 61.1732 299.219 62.6887C296.078 64.2042 292.235 64.962 287.692 64.962C282.98 64.962 278.884 64 275.406 62.0765C271.985 60.0947 269.348 57.2971 267.497 53.6834C265.646 50.0113 264.72 45.6977 264.72 40.7433C264.72 33.1659 266.74 27.2205 270.779 22.9073C274.874 18.5357 280.511 16.3499 287.692 16.3499ZM287.692 25.5302C284.943 25.5302 282.755 26.4338 281.129 28.2407C279.502 29.9893 278.604 32.2624 278.436 35.0602H296.947C296.779 32.2625 295.882 29.9893 294.255 28.2407C292.628 26.4338 290.44 25.5302 287.692 25.5302Z" fill="currentColor"></path><path d="M26.9261 63.8251H13.463V43.2787H26.9261V63.8251Z" fill="currentColor"></path><path d="M53.8522 63.8251H40.3891V43.2787H53.8522V63.8251Z" fill="currentColor"></path><path d="M260.459 63.8251H247.08V17.4863H260.459V63.8251Z" fill="currentColor"></path><path d="M342.379 16.3499C347.035 16.3499 350.794 17.8071 353.655 20.7215C356.572 23.5776 358.03 27.8035 358.03 33.3991V63.8251H344.651V36.8088C344.651 33.4866 344.006 31.0969 342.716 29.6397C341.482 28.1825 339.602 27.4539 337.078 27.4539C334.61 27.4539 332.534 28.4155 330.852 30.339C329.225 32.2625 328.411 35.0604 328.411 38.7325V63.8251H315.033V17.4863H327.906V23.6941H328.243C329.758 21.4792 331.693 19.7013 334.049 18.3607C336.405 17.0201 339.182 16.3499 342.379 16.3499Z" fill="currentColor"></path><path d="M67.3152 43.2787H53.8522V28.4153H40.3891V43.2787H26.9261V28.4153H13.463V43.2787H0V17.4863H67.3152V43.2787Z" fill="currentColor"></path><path d="M40.3891 11.3661H26.9261V0.437158H40.3891V11.3661Z" fill="currentColor"></path><path d="M260.424 0.524676H260.459V11.3661H246.961V0.437158H260.424V0.524676Z" fill="currentColor"></path></svg></a></div><div class="hide-mobile-landscape"><div fs-list-instance="case-studies" data-wf--nav-links--variant="alt" class="nav-links mobile-menu"><a nav-link="" href="/developers" class="nav-link-wrapper mobile-menu w-variant-fb100b9e-b4b3-36cb-e02d-d17e7a155c9e w-inline-block"><div class="text-trim">Developers</div></a><a nav-link="" href="/roadmap" class="nav-link-wrapper mobile-menu w-variant-fb100b9e-b4b3-36cb-e02d-d17e7a155c9e w-inline-block"><div class="text-trim">Roadmap</div><div fs-list-element="items-count" class="nav-superscript"></div></a><a nav-link="" href="https://docs.sapien.io/" target="_blank" class="nav-link-wrapper mobile-menu w-variant-fb100b9e-b4b3-36cb-e02d-d17e7a155c9e w-inline-block"><div class="text-trim">Docs</div><div fs-list-element="items-count" class="nav-superscript"></div></a></div></div><div class="hide-mobile-landscape"><div fs-list-instance="case-studies" data-wf--nav-links--variant="alt" class="nav-links mobile-menu"><a nav-link="" href="/company" class="nav-link-wrapper mobile-menu w-variant-fb100b9e-b4b3-36cb-e02d-d17e7a155c9e w-inline-block"><div class="text-trim">Company</div></a><a nav-link="" href="/blog" class="nav-link-wrapper mobile-menu w-variant-fb100b9e-b4b3-36cb-e02d-d17e7a155c9e w-inline-block"><div class="text-trim">Latest</div><div fs-list-element="items-count" class="nav-superscript"></div></a><a nav-link="" href="mailto:build@sapien.io" class="nav-link-wrapper mobile-menu w-variant-fb100b9e-b4b3-36cb-e02d-d17e7a155c9e w-inline-block"><div class="text-trim">Contact</div><div fs-list-element="items-count" class="nav-superscript"></div></a></div></div><div data-animation="default" class="mobile-menu w-nav" data-easing2="ease" data-easing="ease" data-collapse="all" data-w-id="eafabee4-4f48-45fe-ed98-cea6692f0277" role="banner" data-duration="400" id="w-node-eafabee4-4f48-45fe-ed98-cea6692f0277-40359d63"><div nav-menu-button="" class="nav_button w-nav-button"><div class="hamburger-wrap"><div class="hamburger-line w-variant-5f504fee-2153-3d43-a647-81539cd29fbc"></div><div class="hamburger-embed w-embed"><style>
+.hamburger-wrap {
+	--thickness: 2px;
+	--gap: 0.25rem;
+	--rotate: 45;
+  --width: 100%;
+}
+.w--open .hamburger-line:first-child {
+	transform: translateY(calc(var(--thickness) * 0.5 + var(--gap) * 0.5)) rotate(calc(var(--rotate) * -1deg));
+}
+.w--open .hamburger-line:last-child {
+	transform: translateY(calc(var(--thickness) * -0.5  + var(--gap) * -0.5)) rotate(calc(var(--rotate) * 1deg));
+}
+.w--open .hamburger-wrap:hover {
+	--width: 90%;
+}
+</style></div><div class="hamburger-line w-variant-5f504fee-2153-3d43-a647-81539cd29fbc"></div></div></div></div></div><div class="mobile-menu-overlay"><div class="menu-links-holder"><div fs-list-instance="case-studies" data-wf--nav-links--variant="base" class="nav-links mobile-menu"><a nav-link="" href="/developers" class="nav-link-wrapper mobile-menu w-inline-block"><div class="text-trim">Developers</div></a><a nav-link="" href="/company" class="nav-link-wrapper mobile-menu w-inline-block"><div class="text-trim">Company</div><div fs-list-element="items-count" class="nav-superscript"></div></a><a nav-link="" href="/roadmap" class="nav-link-wrapper mobile-menu w-inline-block"><div class="text-trim">Roadmap</div><div fs-list-element="items-count" class="nav-superscript"></div></a></div><div fs-list-instance="case-studies" data-wf--nav-links--variant="base" class="nav-links mobile-menu"><a nav-link="" href="https://docs.sapien.io/" target="_blank" class="nav-link-wrapper mobile-menu w-inline-block"><div class="text-trim">Docs</div><div fs-list-element="items-count" class="nav-superscript"></div></a><a nav-link="" href="/blog" class="nav-link-wrapper mobile-menu w-inline-block"><div class="text-trim">Latest</div><div fs-list-element="items-count" class="nav-superscript"></div></a><a nav-link="" href="mailto:build@sapien.io" class="nav-link-wrapper mobile-menu w-inline-block"><div class="text-trim">Contact</div></a></div></div></div></nav></div><main class="main-wrapper"><section class="section z-index-1"><div class="container-large"><div class="nav-spacer"></div><div class="content-grid cc-blog-header"><div id="w-node-e0dfd276-fac7-2131-6dfb-46de1ff3cc80-3f149585" class="blog-title-wrapper"><h1 class="header-title text-color-lightgrey32 responsive-padding blog-article-heading">AI Industry News</h1><h1 class="header-title text-wrap-balance responsive-padding blog-article-heading">How Diffusion Models Work: A Detailed Step-by-Step Guide</h1></div><div id="w-node-_07d661d3-cc7c-411a-0d58-acdcba9d07ac-3f149585" class="content-padding hide-mobile-landscape"><img src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/685d188fe6e1696c277b47e1_Person%20FLATTENED-1.svg" loading="lazy" blog-icon="1" alt="" class="blog-header-icon"/><img src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/6857e500ca03ac58c8851eb9_Person%20FLATTENED-1.svg" loading="lazy" blog-icon="2" alt="" class="blog-header-icon"/><img src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/6857e500a601f3601654bb36_Person%20FLATTENED-2.svg" loading="lazy" blog-icon="3" alt="" class="blog-header-icon"/><img src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/685d1891fcfecbfdcfd34a39_Person%20FLATTENED.svg" loading="lazy" blog-icon="4" alt="" class="blog-header-icon"/></div><div id="w-node-_8def3106-7464-6da3-e429-9911f03427f0-3f149585" class="blog-date"><div id="w-node-_317dd23c-0386-c8b3-4745-30a0a170a64c-3f149585" class="content-padding padding-top-5 border-right mobile-padding-top-1"><div class="heading-style-h5 opacity-48">October 16, 2024</div></div></div></div><div blog-header="" class="blog-header-bg"><img src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/685d9633362646999a99ab54_Header%20Alt.jpg" loading="eager" width="3024" height="1480" alt="" class="img-cover w-condition-invisible w-dyn-bind-empty"/></div></div></section><section class="section"><div class="container-large"><div class="content-grid z-index-1"><div id="w-node-e0dfd276-fac7-2131-6dfb-46de1ff3cc8f-3f149585" class="content-padding border-bottom padding-top-12-5 tablet-custom-padding desktop-padding-clean border-right"><div class="bog-author-info"><div><div class="flex-v-left gap-0-25"><div class="heading-style-h5 w-dyn-bind-empty"></div><div class="heading-style-h5 opacity-40 text-wrap-balance w-dyn-bind-empty"></div></div></div><div><div class="flex-v-left gap-0-25"><div class="heading-style-h5 w-dyn-bind-empty"></div><div class="heading-style-h5 opacity-40 text-wrap-balance w-dyn-bind-empty"></div></div></div></div><div class="authors-wrapper w-condition-invisible"><div class="blog-authors-collection w-dyn-list"><div class="hide w-dyn-empty"><div>No items found.</div></div></div></div></div><div id="w-node-e0dfd276-fac7-2131-6dfb-46de1ff3cc91-3f149585" class="content-padding border-bottom padding-top-12-5 border-left tablet-padding-top-5 border-left-clean"><div class="blog-rt w-richtext"><p>Diffusion models enable the generation of highly realistic data across a range of applications. These models excel by reversing a process of gradually diffusing noise into data, which differentiates them from other generative approaches like VAEs. But what makes diffusion models unique, and how do they work? </p><h2>Key Takeaways</h2><ul role="list"><li>Diffusion models generate data by gradually adding noise to it and then reversing this process to reconstruct it, offering a structured approach to data generation.</li><li>The process involves key stages like data preprocessing, forward and reverse diffusion, and noise interaction, all of which play a crucial role in the model’s effectiveness.</li><li>Hyperparameter tuning, especially of the noise schedule, learning rate, and batch size, significantly impacts the performance and output quality of diffusion models.</li><li>Diffusion models are highly stable during training, which helps them consistently produce realistic and high-quality outputs, often surpassing other generative models.</li><li>These models scale well with large datasets and can also be used for effective data augmentation, making them valuable for a wide range of AI applications.</li></ul><h2>What Are Diffusion Models?</h2><p>Diffusion models are generative models that operate by gradually corrupting data with noise and then reversing this process to reconstruct the original data. In machine learning, the goal of diffusion is to create realistic outputs by iteratively refining noisy samples, ultimately resulting in high-fidelity data generation. This process can be understood in detail through diffusion models explained and the intricacies of diffusion model architecture.</p><p>These models are being used more frequently due to their ability to produce detailed and varied results, making them a preferred choice for tasks like image generation, text-to-image synthesis, and audio enhancement. By understanding what is the goal of diffusion, practitioners can better appreciate the practical applications and benefits of these models in real-world scenarios.</p><h3>Key Concepts Behind Diffusion Models</h3><p>Understanding the key concepts behind <a href="https://www.sapien.io/blog/understanding-diffusion-models-in-machine-learning-an-in-depth-overview">diffusion models </a>is crucial for appreciating how they differ from other generative models like GANs. Diffusion models rely on a structured approach to data generation that focuses on systematically adding and removing noise, which contrasts with the adversarial training approach of GANs. In this section, we will break down the core principles behind diffusion models, offering insight into their unique capabilities and how they stack up in the context of GANs vs. diffusion models. Here is key concepts behind diffusion models:</p><ul role="list"><li><strong>Noise</strong>: In diffusion models, noise is deliberately introduced into data. This controlled addition of noise is important as it allows the model to learn how to reverse the corruption process.<br/><br/></li><li><strong>Diffusion Process</strong>: The process of diffusion involves systematically corrupting and then reconstructing data. The model learns to denoise the data, ultimately generating new, coherent samples.<br/><br/></li><li><strong>Comparative Uniqueness</strong>: Unlike GANs, which generate data through adversarial training, diffusion models create data by iteratively denoising. This often results in more stable training and higher-quality outputs.</li></ul><h2>How Diffusion Models Work</h2><p>The process behind diffusion models in machine learning is intricate, involving multiple steps that work together to enable the model to generate new, high-quality data. To fully grasp how diffusion models in machine learning function, it&#x27;s essential to explain the process of diffusion and explore each component of the model. Understanding the process of diffusion involves examining how these components interact to achieve coherent and realistic outputs, highlighting the systematic addition and removal of noise that characterizes this approach.</p><h3>Data Preprocessing</h3><p>Before a diffusion model can begin generating data, it must first process the input data through a series of preprocessing steps. These steps are critical as they ensure the data is formatted correctly and can be transformed during the diffusion process. Data preprocessing typically involves:</p><ul role="list"><li><strong>Normalization</strong>: Scaling data to a standard range to enhance model performance.<br/><br/></li><li><strong>Noise Scheduling</strong>: Planning the addition of noise at incremental stages, which helps manage the corruption process effectively.<br/><br/></li><li><strong>Augmentation</strong>: Applying transformations like rotations or cropping to diversify the data and improve model generalization.</li></ul><h3>Forward Diffusion Process</h3><p>In the forward diffusion process, the model gradually transforms data by adding Gaussian noise at each step, pushing it closer to a pure noise distribution. This process is mathematically represented as a Markov chain, where each step’s output depends on the previous step’s noisy state. Here’s how it unfolds:</p><ol role="list"><li><strong>Stepwise Noise Addition</strong>: Starting with a data sample, the model adds small amounts of noise iteratively. The level of noise increases over time, and with each step, the data sample becomes more corrupted.<br/><br/></li><li><strong>Markov Chain Framework</strong>: This gradual transformation follows a Markov chain, which ensures that the noise addition at each step only depends on the immediate previous state, not the entire sequence.<br/><br/></li><li><strong>Transition to Gaussian Noise</strong>: By the end of the forward diffusion process, the original data is nearly indistinguishable from Gaussian noise. This corruption is intentional and prepares the model for the reverse process, where it learns to denoise.</li></ol><h3>Reverse Diffusion Process</h3><p>The reverse diffusion process is where the model truly shines, as it reconstructs the data by removing noise step-by-step. This phase involves learning the noise distribution and reversing the Markov process, allowing the model to generate new data from random noise.</p><ol role="list"><li><strong>Noise Estimation</strong>: The model estimates the amount of noise added at each step and uses this information to begin removing noise incrementally.<br/><br/></li><li><strong>Iterative Denoising</strong>: With each step, the model denoises the sample, gradually transforming it back into a coherent data sample. This process continues until the model has fully reconstructed the data.<br/><br/></li><li><strong>Output Generation</strong>: The final step results in a new sample that resembles the original data. This method of denoising allows diffusion models to generate realistic outputs that capture the underlying structure and features of the input data.</li></ol><h3>Interaction of Noise and Data</h3><p>The interaction of noise and data in diffusion models is important to their success. Noise acts as both a destructive and instructive force, enabling the model to learn how to construct data through a controlled destruction process. In this context:</p><ul role="list"><li><strong>Controlled Noise Addition</strong>: This is crucial for training, as it allows the model to learn how different levels of noise affect data.</li><li><strong>Reverse Engineering the Data</strong>: By learning to remove noise, the model essentially reverse engineers the original data, generating new samples that are both realistic and diverse.</li><li><strong>Why Data Matters</strong>: The success of the model hinges on quality data. Accurate noise scheduling and an effective data preprocessing pipeline are essential to ensure the diffusion model performs well.</li></ul><h3>Hyperparameter Tuning in Diffusion Models</h3><p>Tuning hyperparameters is essential in diffusion models, as they directly influence the model’s performance. Key hyperparameters include:</p><ul role="list"><li><strong>Noise Schedule</strong>: Defines the rate at which noise is added to data. A carefully designed noise schedule is crucial for balancing corruption and recovery.<br/><br/></li><li><strong>Learning Rate</strong>: Controls how quickly the model adapts to the data. Higher learning rates may speed up training but can lead to instability, while lower rates ensure stability but may slow down training.<br/><br/></li><li><strong>Batch Size</strong>: Determines the number of samples processed at each training step. Larger <a href="https://www.sapien.io/glossary/definition/batch-size">batch sizes</a> can accelerate training, while smaller batches may result in more robust learning.</li></ul><h2>Step-by-Step: How Diffusion Models Generate Data</h2><p>Understanding how diffusion models work involves examining the step-by-step process of training and data generation. This detailed walkthrough covers the essential stages of training a diffusion model and generating new data from a trained model, emphasizing <a href="https://www.forbes.com/sites/teradata/2020/10/15/why-data-matters/">why data matters </a>in ensuring the quality and accuracy of the generated outputs.</p><h3>Training a Diffusion Model</h3><p>Training a diffusion model involves several steps, each aimed at preparing the model to generate high-quality data. Here’s how it works:</p><ol role="list"><li><strong>Dataset Preparation</strong>: The first step involves curating a dataset and applying data preprocessing techniques to ensure it’s ready for training. Techniques like augmentation and normalization are often used to enhance data diversity and model generalization.<br/><br/></li><li><strong>Loss Function Optimization</strong>: Diffusion models typically use specific loss functions, like Mean Squared Error (MSE), to minimize the difference between the reconstructed data and the original input. This step is crucial for refining the model’s denoising capabilities.<br/><br/></li><li><strong>Optimization Techniques</strong>: The model uses optimization algorithms like Adam or SGD to adjust weights and biases, iteratively improving its ability to denoise and generate data accurately.</li></ol><h3>Generating New Data</h3><p>Once trained, the model can generate new data by reversing the diffusion process. Here’s a breakdown of the steps involved:</p><ol role="list"><li><strong>Random Noise Input</strong>: The generation process begins with a sample of random noise. The model applies the reverse diffusion process to this noise, transforming it into a coherent sample.<br/><br/></li><li><strong>Sampling Strategy</strong>: Diffusion models may employ various sampling strategies to enhance output diversity and quality. Techniques like ancestral sampling can help produce more realistic samples by incorporating prior information.<br/><br/></li><li><strong>Computational Considerations</strong>: Generating data with diffusion models is computationally intensive, as it requires iterative denoising. However, recent advancements in model optimization and hardware acceleration are helping to mitigate these challenges, making diffusion models more feasible for large-scale applications.</li></ol><h2>Advantages of Diffusion Models</h2><p>Diffusion models present a number of advantages over traditional generative models, particularly in areas like stability, output quality, scalability, and data augmentation. These strengths make them highly effective in applications requiring precision and complexity, positioning them as a powerful tool in the field of machine learning.</p><h3>Stability in Training</h3><p>Diffusion models are known for their stability during training. Unlike GANs, which can suffer from mode collapse and training instability, diffusion models rely on a deterministic process that systematically denoises data. This leads to more reliable training and generally produces consistent results across different runs.</p><h3>High-Quality Output</h3><p>Diffusion models generate high-quality outputs that often surpass those produced by other models. Their iterative denoising process allows them to capture fine details and nuances in data, resulting in realistic images, audio, and text outputs.</p><h3>Scalability for Large Datasets</h3><p>Diffusion models are well-suited for handling large datasets, as their iterative nature enables them to effectively learn complex data distributions. This scalability makes them an excellent choice for applications that require processing massive amounts of data, such as image synthesis or text generation.</p><h3>Effective Data Augmentation</h3><p>Diffusion models can also be used for data augmentation, enhancing existing datasets by generating additional samples. This capability improves model training and generalization, as it exposes the model to a wider variety of data patterns and features, helping it learn more effectively.</p><h2>Power Your Diffusion Models with Data Labeling by Sapien</h2><p>As diffusion models continue to evolve, their potential for transforming AI applications becomes increasingly apparent. By understanding how diffusion models work and leveraging their strengths, diffusion ML engineers and AI researchers can unlock new possibilities in data generation and enhancement.</p><p>At Sapien, we offer a suite of services to help you unlock the power of your diffusion models. Whether you need data labeling, data collection, or <a href="https://www.sapien.io/solutions/image-annotation">image annotation</a> services, Sapien can provide the expertise and resources to support your AI projects. Schedule a consult with our team today to learn how we can build a custom data pipeline that meets your AI model needs. </p><h2>FAQs</h2><p><strong>Can I use Sapien to improve existing datasets?</strong></p><p>Yes, Sapien provides data labeling, augmentation and enhancement services that can expand and improve your existing datasets.</p><p><strong>What types of data can diffusion models generate?</strong></p><p>Diffusion models can generate images, audio, text, and other high-dimensional data, making them a versatile tool for various applications.</p><p><strong>Can diffusion models be used for real-time applications?</strong></p><p>While diffusion models are typically computationally intensive, advancements in optimization and hardware acceleration are making real-time applications increasingly feasible.</p></div><div class="spacer-13-5 mobile-spacer-3-5"></div></div></div><div class="grid-lines hide-mobile-landscape"></div></div></section><section class="section"><div class="container-large"><div class="content-grid z-index-1"><div id="w-node-af9ea9e8-6a77-e94f-9826-c38940301bf0-3f149585" class="content-padding blog-filters mobile-styles"><div class="heading-style-h5 opacity-40">Related</div></div><div id="w-node-af9ea9e8-6a77-e94f-9826-c38940301bf1-3f149585"><div class="blog-collection w-dyn-list"><div fs-list-load="more" fs-list-element="list" role="list" class="blog-list w-dyn-items"><div role="listitem" class="blog-collection-item w-dyn-item"><a aria-label="blog post" href="/blog/proof-of-quality-who-verified-the-data-that-trained-your-model" class="blog-item w-inline-block"><div class="blog-item-left"><h3 fs-list-field="title" class="blog-title">Proof of Quality: Who Verified the Data That Trained Your Model?</h3><h3 class="text-color-grey32 mobile-small">February 26, 2026</h3><div fs-list-field="category" class="hide w-dyn-bind-empty"></div></div><div class="blog-img-wrapper"><div blog-img="" class="blog-img-gradient"><div class="content-padding hide-mobile-landscape"><img src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/685d188fe6e1696c277b47e1_Person%20FLATTENED-1.svg" loading="lazy" blog-icon="1" alt="" class="blog-header-icon cc-small"/><img src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/6857e500ca03ac58c8851eb9_Person%20FLATTENED-1.svg" loading="lazy" blog-icon="2" alt="" class="blog-header-icon cc-small"/><img src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/6857e500a601f3601654bb36_Person%20FLATTENED-2.svg" loading="lazy" blog-icon="3" alt="" class="blog-header-icon cc-small"/><img src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/685d1891fcfecbfdcfd34a39_Person%20FLATTENED.svg" loading="lazy" blog-icon="4" alt="" class="blog-header-icon cc-small"/></div></div><img loading="lazy" src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/685d6cb4f80cd2b92c6f4e31_blog%20img.jpg" alt="" class="blog-thumbnail w-condition-invisible w-dyn-bind-empty"/></div></a></div><div role="listitem" class="blog-collection-item w-dyn-item"><a aria-label="blog post" href="/blog/why-we-should-train-ai-models-to-work-smarter-not-harder" class="blog-item w-inline-block"><div class="blog-item-left"><h3 fs-list-field="title" class="blog-title">Why We Should Train AI Models to Work Smarter, Not Harder</h3><h3 class="text-color-grey32 mobile-small">November 12, 2025</h3><div fs-list-field="category" class="hide">AI Industry</div></div><div class="blog-img-wrapper"><div blog-img="" class="blog-img-gradient"><div class="content-padding hide-mobile-landscape"><img src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/685d188fe6e1696c277b47e1_Person%20FLATTENED-1.svg" loading="lazy" blog-icon="1" alt="" class="blog-header-icon cc-small"/><img src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/6857e500ca03ac58c8851eb9_Person%20FLATTENED-1.svg" loading="lazy" blog-icon="2" alt="" class="blog-header-icon cc-small"/><img src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/6857e500a601f3601654bb36_Person%20FLATTENED-2.svg" loading="lazy" blog-icon="3" alt="" class="blog-header-icon cc-small"/><img src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/685d1891fcfecbfdcfd34a39_Person%20FLATTENED.svg" loading="lazy" blog-icon="4" alt="" class="blog-header-icon cc-small"/></div></div><img loading="lazy" src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/685d6cb4f80cd2b92c6f4e31_blog%20img.jpg" alt="" class="blog-thumbnail w-condition-invisible w-dyn-bind-empty"/></div></a></div><div role="listitem" class="blog-collection-item w-dyn-item"><a aria-label="blog post" href="/blog/building-interpretable-ai-pipelines-for-the-c-suite-and-regulators" class="blog-item w-inline-block"><div class="blog-item-left"><h3 fs-list-field="title" class="blog-title">Building Interpretable AI Pipelines for the C-Suite and Regulators</h3><h3 class="text-color-grey32 mobile-small">November 10, 2025</h3><div fs-list-field="category" class="hide">AI Industry</div></div><div class="blog-img-wrapper"><div blog-img="" class="blog-img-gradient"><div class="content-padding hide-mobile-landscape"><img src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/685d188fe6e1696c277b47e1_Person%20FLATTENED-1.svg" loading="lazy" blog-icon="1" alt="" class="blog-header-icon cc-small"/><img src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/6857e500ca03ac58c8851eb9_Person%20FLATTENED-1.svg" loading="lazy" blog-icon="2" alt="" class="blog-header-icon cc-small"/><img src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/6857e500a601f3601654bb36_Person%20FLATTENED-2.svg" loading="lazy" blog-icon="3" alt="" class="blog-header-icon cc-small"/><img src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/685d1891fcfecbfdcfd34a39_Person%20FLATTENED.svg" loading="lazy" blog-icon="4" alt="" class="blog-header-icon cc-small"/></div></div><img loading="lazy" src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/685d6cb4f80cd2b92c6f4e31_blog%20img.jpg" alt="" class="blog-thumbnail w-condition-invisible w-dyn-bind-empty"/></div></a></div></div></div></div></div><div class="grid-lines"><div id="w-node-af9ea9e8-6a77-e94f-9826-c38940301c11-3f149585" class="grid-line-dark hide-tablet"></div></div></div></section></main><footer data-wf--footer--variant="base" class="section cc-footer"><div class="container-large"><div class="content-grid"><div id="w-node-_069293ce-cdc7-76a7-ff95-1fc8a49b0230-a49b022c" class="content-padding spacer-footer"><div><a href="/" class="link-wrapper w-inline-block"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 21 20" fill="none" class="footer-logomark"><path d="M8.07782 19.0164H4.03891V12.8525H8.07782V19.0164Z" fill="currentColor"></path><path d="M16.1556 19.0164H12.1167V12.8525H16.1556V19.0164Z" fill="currentColor"></path><path d="M20.1946 12.8525H16.1556V8.39344H12.1167V12.8525H8.07782V8.39344H4.03891V12.8525H0V5.11475H20.1946V12.8525Z" fill="currentColor"></path><path d="M12.1167 3.27869H8.07782V0H12.1167V3.27869Z" fill="currentColor"></path></svg></a></div></div><div class="footer-links"><a footer-link="" href="/privacy-policy" class="nav-link-wrapper w-inline-block"><div>Privacy Policy</div></a><a footer-link="" href="/terms-of-service" class="nav-link-wrapper w-inline-block"><div>Terms of Service</div></a><a id="cookie-icon" footer-link="" href="#" class="nav-link-wrapper w-inline-block"><div>Cookie Controls</div></a></div><div id="w-node-_069293ce-cdc7-76a7-ff95-1fc8a49b024c-a49b022c" class="footer-links"><a footer-link="" href="/developers" class="nav-link-wrapper w-inline-block"><div>Developers</div></a><a footer-link="" href="/company" class="nav-link-wrapper mobile-only w-inline-block"><div>Company</div></a><a footer-link="" href="/roadmap" class="nav-link-wrapper w-inline-block"><div>Roadmap</div></a><a footer-link="" href="https://docs.sapien.io/" target="_blank" class="nav-link-wrapper w-inline-block"><div>Docs</div></a><a footer-link="" href="/blog" class="nav-link-wrapper mobile-only w-inline-block"><div>Latest</div></a><a footer-link="" href="mailto:build@sapien.io" class="nav-link-wrapper mobile-only w-inline-block"><div>Contact</div></a></div><div id="w-node-_069293ce-cdc7-76a7-ff95-1fc8a49b0259-a49b022c" class="footer-links mobile-padding-top-0 hide-mobile-landscape"><a footer-link="" href="/company" class="nav-link-wrapper w-inline-block"><div>Company</div></a><a footer-link="" href="/blog" class="nav-link-wrapper w-inline-block"><div>Latest</div></a><a footer-link="" href="mailto:build@sapien.io" class="nav-link-wrapper w-inline-block"><div>Contact</div></a></div></div><div class="grid-lines"><div id="w-node-_069293ce-cdc7-76a7-ff95-1fc8a49b0267-a49b022c" class="grid-line-dark hide-mobile-landscape"></div><div id="w-node-_069293ce-cdc7-76a7-ff95-1fc8a49b0268-a49b022c" class="grid-line-dark"></div><div id="w-node-_069293ce-cdc7-76a7-ff95-1fc8a49b0269-a49b022c" class="grid-line-dark hide-mobile-landscape"></div></div></div></footer><div class="cookies"><div id="cookie-banner" class="cookie_banner"><div class="cookie_content"><div id="w-node-d22d980f-55a1-c592-aec4-93085b51962c-5b519629" class="banner-text-wrapper"><p class="cookie-banner-text">Sapien uses cookies to personalise your experience, understand how you interact with our website, and show you ads about our products and services. The cookie declaration provides detailed information on the cookies we use and allows you to adjust your preferences.  <a href="#" class="cookie-banner-link">Learn more</a>.  <a href="#" data-w-id="d22d980f-55a1-c592-aec4-93085b519632" class="cookie-banner-link">View Cookie Settings</a>.</p></div><div id="w-node-d22d980f-55a1-c592-aec4-93085b519635-5b519629" class="cookie_buttons"><button id="btn-accept-all" rotate-element="" class="button_secondary"><div rotate-text="6">Allow all Cookies →</div></button><button id="btn-reject-all" rotate-element="" class="button_secondary"><div rotate-text="6">Deny all →</div></button></div><div id="cookie-options" class="cookie_selection w-node-d22d980f-55a1-c592-aec4-93085b51963c-5b519629"><div class="cookie-form w-form"><form id="email-form" name="email-form" data-name="Email Form" method="get" disable-enter="true" class="cookie_options-wrapper" data-wf-page-id="685190e8b8fe79443f149585" data-wf-element-id="d22d980f-55a1-c592-aec4-93085b51963e" data-turnstile-sitekey="0x4AAAAAAAQTptj2So4dx43e"><div id="w-node-d22d980f-55a1-c592-aec4-93085b51963f-5b519629" class="cookie_options"><label class="w-checkbox cookie_checkbox"><div class="w-checkbox-input w-checkbox-input--inputType-custom cookie_checkbox-check w--redirected-checked"></div><input type="checkbox" name="Necessary" id="consent-necessary" data-name="Necessary" style="opacity:0;position:absolute;z-index:-1" checked=""/><span class="w-form-label" for="Necessary">Functionality</span></label><label class="w-checkbox cookie_checkbox"><div class="w-checkbox-input w-checkbox-input--inputType-custom cookie_checkbox-check w--redirected-checked"></div><input type="checkbox" name="Analytics" id="consent-analytics" data-name="Analytics" style="opacity:0;position:absolute;z-index:-1" checked=""/><span class="w-form-label" for="Analytics">Analytics Storage</span></label><label class="w-checkbox cookie_checkbox"><div class="w-checkbox-input w-checkbox-input--inputType-custom cookie_checkbox-check w--redirected-checked"></div><input type="checkbox" name="Marketing" id="consent-ad-marketing" data-name="Marketing" style="opacity:0;position:absolute;z-index:-1" checked=""/><span class="w-form-label" for="Marketing">Ad Storage</span></label><label class="w-checkbox cookie_checkbox"><div class="w-checkbox-input w-checkbox-input--inputType-custom cookie_checkbox-check w--redirected-checked"></div><input type="checkbox" name="Preferences" id="consent-ad-user" data-name="Preferences" style="opacity:0;position:absolute;z-index:-1" checked=""/><span class="w-form-label" for="Preferences">Ad User Data</span></label><label class="w-checkbox cookie_checkbox"><div class="w-checkbox-input w-checkbox-input--inputType-custom cookie_checkbox-check w--redirected-checked"></div><input type="checkbox" name="Preferences" id="consent-ad-personalization" data-name="Preferences" style="opacity:0;position:absolute;z-index:-1" checked=""/><span class="w-form-label" for="Preferences">Ad Personalisation</span></label><label class="w-checkbox cookie_checkbox"><div class="w-checkbox-input w-checkbox-input--inputType-custom cookie_checkbox-check w--redirected-checked"></div><input type="checkbox" name="Preferences" id="consent-personalization" data-name="Preferences" style="opacity:0;position:absolute;z-index:-1" checked=""/><span class="w-form-label" for="Preferences">Personalization Storage</span></label><label class="w-checkbox cookie_checkbox"><div class="w-checkbox-input w-checkbox-input--inputType-custom cookie_checkbox-check w--redirected-checked"></div><input type="checkbox" name="Preferences" id="consent-security" data-name="Preferences" style="opacity:0;position:absolute;z-index:-1" checked=""/><span class="w-form-label" for="Preferences">Security Storage</span></label></div><button id="btn-accept-some" rotate-element="" class="button_secondary"><div rotate-text="6">Accept selection →</div></button></form><div class="w-form-done"><div>Thank you! Your submission has been received!</div></div><div class="w-form-fail"><div>Oops! Something went wrong while submitting the form.</div></div></div></div></div></div><div class="cookie_script w-embed w-script"><script>
+	// Check selection
+  document.getElementById('cookie-icon').addEventListener('click', function() {
+  	setConsentCheckboxes();
+    hideOptions();
+  	document.getElementById('cookie-banner').style.display = 'block';
+  })
+  
+  // Hide Cookie Banner
+  function hideBanner() {
+    document.getElementById('cookie-banner').style.display = 'none';
+  }
+  
+  // Hide more options
+  function hideOptions() {
+  	document.getElementById('cookie-options').style.height = '0px';
+  }
+	
+  // If consentMode has not been set, show Cookie Banner after 10 seconds
+  if(localStorage.getItem('consentMode') === null) {
+  	setTimeout(function() {
+  		document.getElementById('cookie-banner').style.display = 'block';
+  	}, 500);
+  }
+  
+  //Logic to populate the preferences
+  function setConsentCheckboxes() {
+  	uncheckAllConsentCheckboxes();
+  	
+    const consentModeString = localStorage.getItem('consentMode');
+
+  	if (consentModeString) {
+    	const consentMode = JSON.parse(consentModeString);
+      
+        const consentMapping = {
+          'functionality_storage': 'consent-necessary',
+          'ad_storage': 'consent-ad-marketing',
+          'analytics_storage': 'consent-analytics',
+          'ad_user_data': 'consent-ad-user',
+          'ad_personalization': 'consent-ad-personalization',
+          'personalization_storage': 'consent-personalization',
+          'security_storage': 'consent-security',
+        };
+
+        Object.entries(consentMapping).forEach(([storageKey, checkboxId]) => {
+          const checkbox = document.getElementById(checkboxId);
+
+         if (checkbox) {
+            const isChecked = consentMode[storageKey] === 'granted';
+            checkbox.checked = isChecked;
+
+            const checkboxDiv = checkbox.previousElementSibling;
+            if (checkboxDiv) {
+              if (isChecked) {
+                checkboxDiv.classList.add('w--redirected-checked');
+              } else {
+                checkboxDiv.classList.remove('w--redirected-checked');
+              }
+            }
+          }
+    	});
+  	}
+	}
+  
+  //Logic to uncheck all checkboxes
+  function uncheckAllConsentCheckboxes() {
+  	['consent-analytics', 'consent-ad-personalization', 'consent-ad-marketing', 'consent-ad-user', 'consent-personalization', 'consent-security'].forEach(checkboxId => {
+    	const checkbox = document.getElementById(checkboxId);
+    	if (checkbox) {
+      checkbox.checked = false;
+      
+        const checkboxDiv = checkbox.previousElementSibling;
+        if (checkboxDiv && checkboxDiv.classList.contains('w--redirected-checked')) {
+          checkboxDiv.classList.remove('w--redirected-checked');
+        }
+    	}	
+  	});
+	}
+
+  // Logic to update the preferences
+  document.getElementById('btn-accept-all').addEventListener('click', function() {
+    setConsent({
+      necessary: true,
+      analytics: true,
+      adpersonalized: true,
+      admarketing: true,
+      aduser: true,
+      personalized: true,
+      security: true,
+    });
+    hideBanner();
+  });
+
+  document.getElementById('btn-accept-some').addEventListener('click', function() {
+    setConsent({
+      necessary: true,
+      analytics: document.getElementById('consent-analytics').checked,
+      adpersonalized: document.getElementById('consent-ad-personalization').checked,
+      admarketing: document.getElementById('consent-ad-marketing').checked,
+      aduser: document.getElementById('consent-ad-user').checked,
+      personalized: document.getElementById('consent-personalization').checked,
+      security: document.getElementById('consent-security').checked,
+    });
+    hideBanner();
+  });
+
+  document.getElementById('btn-reject-all').addEventListener('click', function() {
+    setConsent({
+      necessary: true,
+      analytics: false,
+      adpersonalized: false,
+      admarketing: false,
+      aduser: false,
+      personalized: false,
+      security: false
+    });
+    hideBanner();
+  }); 
+  
+  // Map the preferences to Google Consent Mode 
+  function setConsent(consent) {
+    const consentMode = {
+      'functionality_storage': consent.necessary ? 'granted' : 'denied',
+      'ad_user_data': consent.aduser ? 'granted' : 'denied',
+      'ad_storage': consent.admarketing ? 'granted' : 'denied',
+      'analytics_storage': consent.analytics ? 'granted' : 'denied',
+      'ad_personalization': consent.adpersonalized ? 'granted' : 'denied',
+      'personalization_storage': consent.personalized ? 'granted' : 'denied',
+      'security_storage': consent.security ? 'granted' : 'denied',
+    };
+    gtag('consent', 'update', consentMode);  
+    localStorage.setItem('consentMode', JSON.stringify(consentMode));
+  }
+  
+</script></div></div></div><script src="https://d3e54v103j8qbb.cloudfront.net/js/jquery-3.5.1.min.dc5e7f18c8.js?site=685190e8b8fe79443f1495a5" type="text/javascript" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script><script src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/js/webflow.schunk.36b8fb49256177c8.js" type="text/javascript" integrity="sha384-4abIlA5/v7XaW1HMXKBgnUuhnjBYJ/Z9C1OSg4OhmVw9O3QeHJ/qJqFBERCDPv7G" crossorigin="anonymous"></script><script src="https://cdn.prod.website-files.com/685190e8b8fe79443f1495a5/js/webflow.a22919cd.9d99d7c52e366463.js" type="text/javascript" integrity="sha384-9XXpZC2XLlWTsV82cmX183LUWxgvnImv0xuUnuDfhhOKnQojgYY5jS9MBrFqw0Xw" crossorigin="anonymous"></script><script src="https://cdn.prod.website-files.com/gsap/3.14.2/gsap.min.js" type="text/javascript"></script><script src="https://cdn.prod.website-files.com/gsap/3.14.2/ScrollTrigger.min.js" type="text/javascript"></script><script src="https://cdn.prod.website-files.com/gsap/3.14.2/CustomEase.min.js" type="text/javascript"></script><script type="text/javascript">gsap.registerPlugin(ScrollTrigger,CustomEase);</script><script src="https://cdn.jsdelivr.net/npm/@barba/core@2.10.3/dist/barba.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.2.3/dist/lenis.min.js"></script>
+<script src="https://slater.app/19169/56290.js"></script>
+
+<!-- Start of HubSpot Embed Code -->
+<!-- <script type="text/javascript" id="hs-script-loader" async defer src="//js.hs-scripts.com/44005837.js"></script>
+<!-- End of HubSpot Embed Code -->
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P6FN46P6"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<!-- GTM Data Layer Push -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    var form = document.querySelector("#guideForm"); // Update this with the correct form ID or class
+    if (form) {
+        form.addEventListener("submit", function (event) {
+            // Ensure GTM gets the event only when form submission is valid
+            setTimeout(function () {
+                window.dataLayer = window.dataLayer || [];
+                window.dataLayer.push({
+                    'event': 'guideFormSubmission', // Custom event name
+                    'formName': 'Get Your Guide',  // Optional: Track different forms
+                    'submissionTime': new Date().toISOString()
+                });
+            }, 500); // Delay to prevent blocking form submission
+        });
+    }
+});
+</script>
+<!-- GTM Data Layer Push End -->
+
+
+<!-- Advance GTM Data Layer Push -->
+
+<script>
+  // Wait for HubSpot forms to load
+  window.addEventListener('message', function(event) {
+    // Check if message is from HubSpot form
+    if (
+      event.data.type === 'hsFormCallback' && 
+      event.data.eventName === 'onFormSubmitted'
+    ) {
+      // Extract form data (HubSpot passes this in event.data)
+      const formData = event.data.data;
+      const email = formData.find(field => field.name === 'email')?.value;
+      const firstName = formData.find(field => field.name === 'firstname')?.value;
+      const lastName = formData.find(field => field.name === 'lastname')?.value;
+
+      // Push to dataLayer
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'hubspot_form_submitted', // Required for GTM trigger
+        user_email: email,
+        user_first_name: firstName,
+        user_last_name: lastName
+      });
+    }
+  });
+</script>
+<!-- Advance GTM Data Layer Push End -->
+
+<script>
+
+gsap.registerPlugin(ScrollTrigger)
+
+function initGlobalParallax() {
+  const mm = gsap.matchMedia()
+
+  mm.add(
+    {
+      isMobile: "(max-width:479px)",
+      isMobileLandscape: "(max-width:767px)",
+      isTablet: "(max-width:991px)",
+      isDesktop: "(min-width:992px)"
+    },
+    (context) => {
+      const { isMobile, isMobileLandscape, isTablet } = context.conditions
+
+      const ctx = gsap.context(() => {
+        document.querySelectorAll('[data-parallax="trigger"]').forEach((trigger) => {
+            // Check if this trigger has to be disabled on smaller breakpoints
+            const disable = trigger.getAttribute("data-parallax-disable")
+            if (
+              (disable === "mobile" && isMobile) ||
+              (disable === "mobileLandscape" && isMobileLandscape) ||
+              (disable === "tablet" && isTablet)
+            ) {
+              return
+            }
+            
+            // Optional: you can target an element inside a trigger if necessary 
+            const target = trigger.querySelector('[data-parallax="target"]') || trigger
+
+            // Get the direction value to decide between xPercent or yPercent tween
+            const direction = trigger.getAttribute("data-parallax-direction") || "vertical"
+            const prop = direction === "horizontal" ? "xPercent" : "yPercent"
+            
+            // Get the scrub value, our default is 'true' because that feels nice with Lenis
+            const scrubAttr = trigger.getAttribute("data-parallax-scrub")
+            const scrub = scrubAttr ? parseFloat(scrubAttr) : true
+            
+            // Get the start position in % 
+            const startAttr = trigger.getAttribute("data-parallax-start")
+            const startVal = startAttr !== null ? parseFloat(startAttr) : 20
+            
+            // Get the end position in %
+            const endAttr = trigger.getAttribute("data-parallax-end")
+            const endVal = endAttr !== null ? parseFloat(endAttr) : -20
+            
+            // Get the start value of the ScrollTrigger
+            const scrollStartRaw = trigger.getAttribute("data-parallax-scroll-start") || "top bottom"
+            const scrollStart = `clamp(${scrollStartRaw})`
+            
+           // Get the end value of the ScrollTrigger  
+            const scrollEndRaw = trigger.getAttribute("data-parallax-scroll-end") || "bottom top"
+            const scrollEnd = `clamp(${scrollEndRaw})`
+
+            gsap.fromTo(
+              target,
+              { [prop]: startVal },
+              {
+                [prop]: endVal,
+                ease: "none",
+                scrollTrigger: {
+                  trigger,
+                  start: scrollStart,
+                  end: scrollEnd,
+                  scrub,
+                },
+              }
+            )
+          })
+      })
+
+      return () => ctx.revert()
+    }
+  )
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initGlobalParallax()
+})
+
+</script>
+
+<script>
+const zoomTriggers = document.querySelectorAll('[img-zoom]');
+
+zoomTriggers.forEach(trigger => {
+  const zoomImage = trigger.querySelector('.img-zoom');
+  let leaveTimeout;
+  
+  if (zoomImage) {
+    trigger.addEventListener('mouseenter', () => {
+      clearTimeout(leaveTimeout);
+      gsap.to(zoomImage, {
+        scale: 1,
+        duration: 0.4,
+        ease: "power2.out",
+        overwrite: true
+      });
+    });
+    
+    trigger.addEventListener('mouseleave', () => {
+      leaveTimeout = setTimeout(() => {
+        gsap.to(zoomImage, {
+          scale: 1.05,
+          duration: 0.4,
+          ease: "power2.out",
+          overwrite: true
+        });
+      });
+    });
+  }
+});
+</script>
+
+
+<script>
+
+var Webflow = Webflow || []
+Webflow.push(function ()
+{
+	const dropdownGroups = document.querySelectorAll('[fc-dropdown = group]')
+  setupDropdownGroups(dropdownGroups)
+
+	if(sessionStorage['fc-dropdown-id'] !== undefined)
+  	openTargetDropdown()
+  else
+  {
+		openAutomaticDropdown()
+    
+    window.addEventListener('resize', function()
+    {
+    	openAutomaticDropdown()
+		})
+  }
+})
+
+Webflow.push(function () {
+  const sources = document.querySelectorAll('[fc-dropdown-source]')
+  
+  if(sources.length <= 0)
+  	return
+  
+  for(const source of sources)
+  {
+    source.addEventListener('click', function(event)
+    {
+      const identifier = source.getAttribute('fc-dropdown-source')
+      const link = source.getAttribute('href')
+
+      event.preventDefault()
+      sessionStorage['fc-dropdown-id'] = identifier
+      window.location = link
+    })
+  }
+})
+
+function setupDropdownGroups(dropdownGroups)
+{
+	if(dropdownGroups === null)
+  	return
+    
+	for(const group of dropdownGroups)
+  {
+  	const dropdowns = group.querySelectorAll('.w-dropdown')
+    for(const dropdown of dropdowns)
+  	{
+    	dropdown.addEventListener('click', function()
+      {
+        group.interacted = true
+      })
+    }
+  }
+}
+
+function openTargetDropdown()
+{
+	const identifier = sessionStorage['fc-dropdown-id']
+  sessionStorage.removeItem('fc-dropdown-id')
+
+  const targets = document.querySelectorAll('[fc-dropdown-target]')
+  let targetIds = []
+  for(const target of targets)
+    targetIds.push(target.getAttribute('fc-dropdown-target'))
+
+  for(let i = 0; i < targetIds.length; i++)
+  {
+    if(identifier === targetIds[i])
+    {
+    	const dropdownGroup = targets[i].closest('[fc-dropdown = group]')
+      if(dropdownGroup !== null)
+      	dropdownGroup.interacted = true
+        
+    	openDropdown(targets[i])
+      targets[i].scrollIntoView({ behavior: "smooth", block: "center" })
+
+      break
+    }
+  }
+}
+
+function openAutomaticDropdown()
+{
+  const dropdowns = document.querySelectorAll('[fc-dropdown-behavior = open]')
+
+  if(dropdowns.length <= 0)
+    return
+	else if(dropdowns.length === 1)
+  {
+    const dropdown = dropdowns[0]
+    
+    const dropdownGroup = dropdown.closest('[fc-dropdown = group]')
+    if(dropdownGroup !== null && dropdownGroup.interacted)
+    	return
+
+    if(checkBreakpoint(dropdown))
+    {
+    	closeDropdown(dropdown)
+      return
+    }
+    
+		openDropdown(dropdown)
+	}
+  else
+  {  
+    let options = {
+      threshold: 0,
+    }
+
+    let callback = (entries, observer) => {
+      entries.forEach((entry) => {
+
+				const dropdownGroup = entry.target.closest('[fc-dropdown = group]')
+        if(dropdownGroup !== null && dropdownGroup.interacted)
+          return
+
+        // Only act when entering viewport - dropdowns stay open when scrolling past
+        if(entry.isIntersecting)
+        {
+        	if(checkBreakpoint(entry.target))
+          {
+          	closeDropdown(entry.target)
+            return
+          }
+        	openDropdown(entry.target)
+        }
+        // No else clause - we don't close dropdowns when they leave viewport
+      })
+    }
+
+    let observer = new IntersectionObserver(callback, options)
+
+    for(const dropdown of dropdowns)
+      observer.observe(dropdown)
+  }
+}
+
+function checkBreakpoint(dropdown)
+{
+	const breakpoints = { tablet: 991, landscape: 767, portrait: 478 }
+  
+  const dropdownBreakpoint = dropdown.getAttribute('fc-dropdown-breakpoint-off')
+  
+  if(dropdownBreakpoint === null)
+  	return false
+    
+  const breakpointWidth = breakpoints[`${dropdownBreakpoint}`]
+  
+  if(breakpointWidth === undefined)
+  	return false
+    
+  if(window.innerWidth <= breakpointWidth)
+  	return true
+    
+  return false
+}
+
+function closeDropdown(dropdown) {
+	const dropdownToggle = dropdown.querySelector('.w-dropdown-toggle')
+  if(dropdownToggle.classList.contains('w--open'))
+  {
+    dropdownToggle.dispatchEvent(new Event('mousedown'))
+    dropdownToggle.dispatchEvent(new Event('mouseup'))
+
+    dropdownToggle.dispatchEvent(new MouseEvent('click'))
+  }
+}
+
+function openDropdown(dropdown) {
+	const dropdownToggle = dropdown.querySelector('.w-dropdown-toggle')
+  if(!dropdownToggle.classList.contains('w--open'))
+  {
+    dropdownToggle.dispatchEvent(new Event('mousedown'))
+    dropdownToggle.dispatchEvent(new Event('mouseup'))
+
+    dropdownToggle.dispatchEvent(new MouseEvent('click'))
+  }
+}
+
+</script>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const menuButton = document.querySelector('[nav-menu-button]');
+  const hamburgerLines = document.querySelectorAll('.hamburger-line');
+  const logo = document.querySelector('.logo');
+  
+  menuButton.addEventListener('click', function() {
+    hamburgerLines.forEach(line => {
+      line.classList.toggle('menu-active');
+    });
+    logo.classList.toggle('menu-active');
+  });
+});
+  
+</script>
+
+
+<!-- Disable Scroll Script -->
+<script>
+var Webflow = Webflow || [];
+var $body = $(document.body);
+var scrollPosition = 0;
+
+Webflow.push(function () {
+    $('[scroll=disable]').on('click', function () {
+        var oldWidth = $body.innerWidth();
+        scrollPosition = window.pageYOffset;
+        $body.css('overflow', 'hidden');
+        $body.css('position', 'fixed');
+        $body.css('top', `-${scrollPosition}px`);
+        $body.width(oldWidth);
+    });
+    $('[scroll=enable]').on('click', function () {
+        if ($body.css('overflow') != 'hidden') { scrollPosition = window.pageYOffset; }
+        $body.css('overflow', '');
+        $body.css('position', '');
+        $body.css('top', '');
+        $body.width('');
+        $(window).scrollTop(scrollPosition);
+    });
+    $('[scroll=both]').on('click', function () {
+        if ($body.css('overflow') != 'hidden') {
+            var oldWidth = $body.innerWidth();
+            scrollPosition = window.pageYOffset;
+            $body.css('overflow', 'hidden');
+            $body.css('position', 'fixed');
+            $body.css('top', `-${scrollPosition}px`);
+            $body.width(oldWidth);
+        } else {
+            $body.css('overflow', '');
+            $body.css('position', '');
+            $body.css('top', '');
+            $body.width('');
+            $(window).scrollTop(scrollPosition);
+        }
+    });
+});
+</script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const forms = document.querySelectorAll('form[disable-enter="true"]');
+  forms.forEach(function(form) {
+    form.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+      }
+    });
+  });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const blogHeader = document.querySelector('[blog-header]');
+  const backgroundClasses = [
+    'background-chrome',
+    'background-water', 
+    'background-night'
+  ];
+  const randomClass = backgroundClasses[Math.floor(Math.random() * backgroundClasses.length)];
+  if (blogHeader) {
+    blogHeader.classList.add(randomClass);
+  }
+  const randomIconNumber = Math.floor(Math.random() * 4) + 1;
+  const selectedIcon = document.querySelector(`[blog-icon="${randomIconNumber}"]`);
+  if (selectedIcon) {
+    selectedIcon.style.display = 'block';
+  }
+});
+</script>
+
+<!-- table of contents code -->
+
+<script>
+
+ document.addEventListener('DOMContentLoaded', function() {
+  const article = document.getElementById("single-article");
+  const tocContainer = document.getElementById("toc");
+
+  // Create the TOC
+  const createTOC = () => {
+    const headings = article.querySelectorAll("h2, h3, h4");
+    const tocFragment = document.createDocumentFragment();
+
+    headings.forEach((heading) => {
+      const title = heading.textContent.trim();
+      const anchorId = `toc-${title.toLowerCase().replace(/\s+/g, '-')}`;
+
+      heading.id = anchorId;
+
+      const li = document.createElement("li");
+      const anchor = document.createElement("a");
+      anchor.textContent = title;
+      anchor.href = `#${anchorId}`;
+      li.appendChild(anchor);
+      tocFragment.appendChild(li);
+    });
+
+    const ul = document.createElement("ul");
+    ul.appendChild(tocFragment);
+    tocContainer.appendChild(ul);
+  };
+
+  // Check if the TOC container exists and the article has headings
+  if (tocContainer && article) {
+    createTOC();
+  }
+
+  var tocItems = document.querySelectorAll('#toc a');
+  var titleElements = document.querySelectorAll('.content [id]');
+
+  function setActiveItem(targetId) {
+    tocItems.forEach(function(item) {
+      if (item.getAttribute('href') === '#' + targetId) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
+  }
+
+  tocItems.forEach(function(item) {
+    item.addEventListener('click', function(event) {
+      event.preventDefault();
+      var targetId = this.getAttribute('href').substring(1);
+      setActiveItem(targetId);
+      document.getElementById(targetId).scrollIntoView();
+    });
+  });
+
+  titleElements.forEach(function(title) {
+    title.addEventListener('click', function() {
+      var targetId = this.getAttribute('id');
+      setActiveItem(targetId);
+    });
+  });
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      const id = entry.target.getAttribute("id");
+      if (entry.isIntersecting) {
+        document.querySelectorAll(".active").forEach((z) => {
+          z.classList.remove("active");
+        });
+        document.querySelector(`a[href="#${id}"]`).classList.add("active");
+      }
+    });
+  }, { rootMargin: '0px 0px -50% 0px' });
+
+  if ("h2,h3,h4" !== "") {
+    document.getElementById("single-article").querySelectorAll("h2, h3, h4").forEach(function(heading) {
+      observer.observe(heading);
+    });
+  }
+
+  // handle anchor position
+function offsetAnchor() {
+  if (location.hash.length !== 0) {
+    const targetId = location.hash.substring(1);
+    const targetElement = document.getElementById(targetId);
+    if (targetElement) {
+      const offset = targetElement.getBoundingClientRect().top - 100;
+      window.scrollTo(window.scrollX, window.scrollY + offset);
+    }
+  }
+}
+
+window.addEventListener("hashchange", offsetAnchor);
+window.setTimeout(offsetAnchor, 1);
+});
+
+</script>
+
+
+<!-- picture zoom code 
+
+
+<script>
+$(document).ready(function() {
+  $(".styleguide_rich-text figure.w-richtext-align-center").each(function() {
+    $(this).removeClass("w-richtext-align-center")
+           .addClass("w-richtext-align-fullwidth");
+  });
+});
+</script>
+
+
+
+<style>
+/* Initial cursor style for desktop only */
+@media (min-width: 992px) {
+  .styleguide_rich-text img {
+    cursor: zoom-in;
+  }
+}
+
+/* Lightbox overlay styles */
+.lightbox-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  overflow: hidden; /* Prevent any content from overflowing */
+}
+
+/* Fullscreen image style */
+.lightbox-overlay img {
+  max-width: 90vw;
+  max-height: 90vh;
+  cursor: zoom-out;
+}
+
+/* Animation for lightbox */
+.lightbox-overlay.show {
+  display: flex;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+</style>
+
+<script>
+$(document).ready(function() {
+  console.log("jQuery is ready!");
+
+  // Create the lightbox overlay
+  $('body').append('<div class="lightbox-overlay"><img src="" alt="Image"></div>');
+
+  // Ensure the lightbox was appended correctly
+  if ($('.lightbox-overlay').length) {
+    console.log("Lightbox overlay created successfully!");
+  } else {
+    console.log("Failed to create lightbox overlay.");
+  }
+
+  // Only apply the lightbox functionality on desktop screens (min-width: 992px)
+  if ($(window).width() >= 992) {
+    console.log("Applying lightbox feature on desktop screens");
+
+    // When hovering over the image, show zoom-in cursor (desktop only)
+    $(".styleguide_rich-text img").hover(function() {
+      $(this).css('cursor', 'zoom-in');
+      console.log("Hovering over image: ", $(this).attr('src'));
+    });
+
+    // On image click, open the image in lightbox and disable scrolling (desktop only)
+    $(".styleguide_rich-text img").click(function() {
+      var imgSrc = $(this).attr('src');  // Get image source
+      console.log("Image clicked with source: ", imgSrc);
+      $('.lightbox-overlay img').attr('src', imgSrc);  // Set the lightbox image source
+      $('.lightbox-overlay').addClass('show');  // Show the lightbox
+      $('body').css('overflow', 'hidden');  // Disable scrolling
+    });
+
+    // When the lightbox image is clicked, close the lightbox and restore scrolling (desktop only)
+    $('.lightbox-overlay').click(function() {
+      $(this).removeClass('show');  // Hide the lightbox
+      $('body').css('overflow', 'auto');  // Re-enable scrolling
+      console.log("Lightbox closed.");
+    });
+  } else {
+    console.log("Lightbox feature disabled on tablet and mobile screens");
+  }
+});
+
+</script>
+
+--->
+
+<script>
+// richtext CTA
+
+document.addEventListener("DOMContentLoaded", function() {
+  var richText = document.querySelector('.styleguide_rich-text');
+  var content = richText.innerHTML;
+
+  // Find all elements with data-component attribute
+  var components = document.querySelectorAll('[data-component]');
+
+  components.forEach(function(component) {
+    var placeholder = `[[${component.getAttribute('data-component')}]]`; // Match the placeholder format
+    var componentHTML = component.outerHTML;
+
+    // Replace all instances of the placeholder with the component's HTML
+    while (content.includes(placeholder)) {
+      content = content.replace(placeholder, componentHTML);
+    }
+  });
+
+  // Update the rich text content with replaced components
+  richText.innerHTML = content;
+});
+</script>
+
+
+
+
+<style>
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px !important;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent !important; /* Removes scrollbar background */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888 !important;
+  border-radius: 4px !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555 !important;
+}
+
+</style>
+
+
+<!--- popup expires 7 days --->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.1/js.cookie.min.js"></script>
+
+<script>
+const delay = 12; // pop-up delay in seconds
+const popupId = "pop-up-wrapper-blog"; // Pop-up Id name
+const cookieName = "blog_popup"; // Unique cookie name for blog
+
+$(document).ready(function() {
+    if (!Cookies.get(cookieName)) {
+        setTimeout(function() {
+            document.getElementById(popupId).style.display = "flex";
+            Cookies.set(cookieName, true, { expires: 7 }); // 7 days expiration
+        }, delay*1000);
+    }
+});
+</script>
+
+
+</body></html>

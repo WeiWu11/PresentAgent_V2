@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Head -->
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <!-- Metadata, OpenGraph and Schema.org -->
+
+
+
+
+<!-- Standard metadata -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>
+  
+  
+    
+      Project 5: Diffusion Models | Introduction to Computer Vision
+    
+  
+</title>
+<meta name="author" content=" ">
+<meta name="description" content="Implement and deploy diffusion models for image generation.">
+
+  <meta name="keywords" content="intro to computer vision">
+
+
+
+
+
+
+
+
+
+
+<!-- Bootstrap & MDB -->
+<link rel="stylesheet" href="/courses/cs5670/2025sp/assets/css/bootstrap.min.css?a4b3f509e79c54a512b890d73235ef04">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/css/mdb.min.css" integrity="sha256-jpjYvU3G3N6nrrBwXJoVEYI/0zw8htfFnhT9ljN3JJw=" crossorigin="anonymous">
+
+
+
+<!-- Fonts & Icons -->
+<link defer rel="stylesheet" href="/courses/cs5670/2025sp/assets/css/academicons.min.css?f0b7046b84e425c55f3463ac249818f5">
+<link defer rel="stylesheet" href="/courses/cs5670/2025sp/assets/css/scholar-icons.css?62b2ac103a88034e6882a5be5f3e2772">
+<link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap">
+
+<!-- Code Syntax Highlighting -->
+<link defer rel="stylesheet" href="/courses/cs5670/2025sp/assets/css/jekyll-pygments-themes-github.css?591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light">
+
+
+
+<!-- Styles -->
+
+
+
+
+  <link rel="shortcut icon" href="data:image/svg+xml,&lt;svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22&gt;&lt;text%20y=%22.9em%22%20font-size=%2290%22&gt;%E2%9A%9B%EF%B8%8F&lt;/text&gt;&lt;/svg&gt;">
+
+<link rel="stylesheet" href="/courses/cs5670/2025sp/assets/css/main.css?d41d8cd98f00b204e9800998ecf8427e">
+<link rel="canonical" href="http://www.cs.cornell.edu/courses/cs5670/2025sp/projects/4_project/">
+
+<!-- Dark Mode -->
+<script src="/courses/cs5670/2025sp/assets/js/theme.js?9a0c749ec5240d9cda97bc72359a72c0"></script>
+
+<style>
+  code {
+    background-color: #f4f4f4;
+    padding: 5px;
+    border-radius: 5px;
+  }
+
+  .image-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .image-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .image-container>div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 30%;
+    max-width: 200px;
+  }
+
+  .image-container img {
+    width: 100%;
+    height: auto;
+  }
+
+  .image-container p {
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  /* Two image containers */
+  .column {
+    float: left;
+    width: 45%;
+    padding: 5px;
+  }
+
+  /* Clear floats after image containers */
+  .row::after {
+    content: "";
+    clear: both;
+    display: table;
+  }
+
+  code {
+    background-color: #f4f4f4;
+    padding: 5px;
+    border-radius: 5px;
+  }
+
+  .image-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .image-container>div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 30%;
+    max-width: 200px;
+  }
+
+  .image-container img {
+    width: 100%;
+    height: auto;
+  }
+
+  .image-container p {
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  /* Two image containers */
+  .column {
+    float: left;
+    width: 45%;
+    padding: 5px;
+  }
+
+  /* Clear floats after image containers */
+  .row::after {
+    content: "";
+    clear: both;
+    display: table;
+  }
+
+  code {
+    background-color: #f4f4f4;
+    padding: 5px;
+    border-radius: 5px;
+  }
+
+  .image-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .image-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .image-container>div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40%;
+    max-width: 200px;
+    position: relative;
+    padding: 20px;
+    overflow: visible;
+  }
+
+  .image-container img {
+    width: 100%;
+    height: auto;
+    transform-origin: center center;
+  }
+
+  .image-container p {
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  /* Two image containers */
+  .column {
+    float: left;
+    width: 45%;
+    padding: 5px;
+  }
+
+  /* Clear floats after image containers */
+  .row::after {
+    content: "";
+    clear: both;
+    display: table;
+  }
+
+  @keyframes rotate180 {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(180deg);
+    }
+  }
+
+  .rotating-image {
+    transition: transform 1.5s;
+    transform: rotate(0deg);
+  }
+
+  .rotating-image:hover {
+    transform: rotate(180deg);
+  }
+
+  .zoom-animation {
+    transition: transform 1s ease-in-out;
+    transform: scale(1);
+  }
+
+  .zoom-animation:hover,
+  .zoom-animation.active {
+    transform: scale(0.25);
+  }
+
+  .rotating-image {
+    transition: transform 1.5s;
+    transform: rotate(0deg);
+  }
+
+  .rotating-image:hover,
+  .rotating-image.active {
+    transform: rotate(180deg);
+  }
+
+  .caption-container {
+    position: relative;
+    height: auto;
+    min-height: 2em;
+    text-align: center;
+    width: 100%;
+    padding: 5px 0;
+  }
+
+  .caption-default,
+  .caption-transform {
+    position: absolute;
+    width: 100%;
+    transition: opacity 1.5s;
+    white-space: normal;
+    left: 0;
+  }
+
+  .caption-transform {
+    opacity: 0;
+  }
+
+  .rotating-image:hover+.caption-container .caption-default,
+  .active+.caption-container .caption-default {
+    opacity: 0;
+  }
+
+  .rotating-image:hover+.caption-container .caption-transform,
+  .active+.caption-container .caption-transform {
+    opacity: 1;
+  }
+
+  .zoom-animation:hover+.caption-container .caption-default {
+    opacity: 0;
+  }
+
+  .zoom-animation:hover+.caption-container .caption-transform {
+    opacity: 1;
+  }
+
+  .image-container>div:hover .zoom-animation {
+    transform: scale(0.25);
+  }
+
+  .image-container>div:hover .caption-default {
+    opacity: 0;
+  }
+
+  .image-container>div:hover .caption-transform {
+    opacity: 1;
+  }
+
+  .caption-container .caption-default {
+    opacity: 1;
+    transition: opacity 1.5s;
+  }
+
+  .caption-container .caption-transform {
+    opacity: 0;
+    transition: opacity 1.5s;
+  }
+
+  .active+.caption-container .caption-default {
+    opacity: 0;
+  }
+
+  .active+.caption-container .caption-transform {
+    opacity: 1;
+  }
+
+  .dissolve-container {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 100%;
+    /* Creates a square aspect ratio */
+    margin-bottom: 5px;
+    /* Reduced from 10px to match other captions */
+  }
+
+  .dissolve-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: opacity 1s ease-in-out;
+  }
+
+  .dissolve-image.original {
+    opacity: 1;
+  }
+
+  .dissolve-image.edited {
+    opacity: 0;
+  }
+
+  .dissolve-image.original.active {
+    opacity: 0;
+  }
+
+  .dissolve-image.edited.active {
+    opacity: 1;
+  }
+
+  /* Ensure consistent caption styling */
+  .image-container>div p {
+    text-align: center;
+    margin-top: 5px;
+    /* Reduced from 10px to align with other captions */
+    margin-bottom: 0;
+  }
+
+  /* Hover state */
+  .dissolve-container:hover .dissolve-image.original {
+    opacity: 0;
+  }
+
+  .dissolve-container:hover .dissolve-image.edited {
+    opacity: 1;
+  }
+
+  h1 {
+    font-size: x-large;
+  }
+
+  h1 a {
+    font-size: medium;
+  }
+
+  h1 img {
+    float: left;
+    padding-right: 1em;
+  }
+</style>
+
+
+
+
+
+
+
+
+  </head>
+
+  <!-- Body -->
+  <body class="fixed-top-nav ">
+    <!-- Header -->
+    <header>
+  <!-- Nav Bar -->
+  <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation">
+    <div class="container">
+      
+        <a class="navbar-brand title font-weight-lighter" href="/courses/cs5670/2025sp/">
+          Introduction to Computer Vision
+        </a>
+      
+      <!-- Navbar Toggle -->
+      <button class="navbar-toggler collapsed ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar top-bar"></span>
+        <span class="icon-bar middle-bar"></span>
+        <span class="icon-bar bottom-bar"></span>
+      </button>
+
+      <div class="collapse navbar-collapse text-right" id="navbarNav">
+        <ul class="navbar-nav ml-auto flex-nowrap">
+          
+
+          <!-- About -->
+          <li class="nav-item ">
+            <a class="nav-link" href="/courses/cs5670/2025sp/">About
+              
+            </a>
+          </li>
+
+          <!-- Other pages -->
+          
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+              
+                
+                <li class="nav-item ">
+                  <a class="nav-link" href="/courses/cs5670/2025sp/lectures/">Lectures
+                    
+                  </a>
+                </li>
+              
+            
+          
+            
+              
+                
+                <li class="nav-item active">
+                  <a class="nav-link" href="/courses/cs5670/2025sp/projects/">Projects
+                    
+                      <span class="sr-only">(current)</span>
+                    
+                  </a>
+                </li>
+              
+            
+          
+            
+              
+                
+                <li class="nav-item ">
+                  <a class="nav-link" href="/courses/cs5670/2025sp/resources/">Resources
+                    
+                  </a>
+                </li>
+              
+            
+          
+          
+            <!-- Search -->
+            <li class="nav-item">
+              <button id="search-toggle" title="Search" onclick="openSearchModal()">
+                <span class="nav-link">ctrl k <i class="ti ti-search"></i></span>
+              </button>
+            </li>
+          
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+    <!-- Scrolling Progress Bar -->
+    <progress id="progress" value="0">
+      <div class="progress-container">
+        <span class="progress-bar"></span>
+      </div>
+    </progress>
+  
+</header>
+
+
+    <!-- Content -->
+    <div class="container mt-5" role="main">
+      
+        
+
+<div class="post">
+  <header class="post-header">
+    <h1 class="post-title">Project 5: Diffusion Models</h1>
+    <p class="post-description">Implement and deploy diffusion models for image generation.</p>
+  </header>
+
+  <article>
+    <div class="image-container">
+      <div>
+        <div class="dissolve-container">
+          <img src="assets/hole_filling3.png"
+            alt="Original Campanile" class="dissolve-image original">
+          <img src="assets/hole_filling.png"
+            alt="Hole Filled" class="dissolve-image edited">
+        </div>
+        <p><b>Hole Filling</b></p>
+      </div>
+      <div>
+        <!-- <div class="dissolve-container">
+              <img src="assets/dog.png" alt="Original Dog"
+                class="dissolve-image original">
+              <img src="assets/sdedit_dog.png" alt="Edited Dog"
+                class="dissolve-image edited">
+            </div> -->
+        <div class="dissolve-container">
+          <img src="assets/pixel_bear.png" alt="Original Dog"
+            class="dissolve-image original">
+          <img src="assets/sdedit_bear2.png" alt="Edited Dog"
+            class="dissolve-image edited">
+        </div>
+        <p><b>"Make it Real"</b></p>
+      </div>
+      <div>
+        <img src="assets/skull2.png" alt="Man Wearing Hat"
+          class="zoom-animation">
+        <div class="caption-container">
+          <p class="caption-default"><b>A Lithograph of a Waterfall</b></p>
+          <p class="caption-transform"><b>A Lithograph of a Skull</b></p>
+        </div>
+      </div>
+      <div>
+        <img src="assets/old_man.png" alt="Bear Dancing"
+          class="rotating-image">
+        <div class="caption-container">
+          <p class="caption-default"><b>An Oil Painting of an Old Man</b></p>
+          <p class="caption-transform"><b>An Oil Painting of People Around a
+              Fire</b></p>
+        </div>
+    
+      </div>
+    
+    </div>
+    
+    <!-- <p style="text-align: center; font-size: 0.5em; margin: 1px 0;">Hover Over Us!</p> -->
+    
+    <video id="video5" width="640" height="320" muted="" style="display: block; margin-left: auto; margin-right: auto;"
+      onmouseover="handleMouseOver(this)" onmouseout="handleMouseOut(this)">
+      <source type="video/mp4" src="assets/mnist.mp4">
+    </video>
+
+    <grammarly-desktop-integration data-grammarly-shadow-root="true"></grammarly-desktop-integration>
+    <script>
+      window.addEventListener('load', function () {
+        // Handle video autoplay
+        var videos = document.querySelectorAll('video');
+        videos.forEach(function (video) {
+          video.playbackRate = 1; // Slows down the video to approximately 1.5x longer duration
+          video.play();
+
+          // Add timeout to reverse video after 2 seconds
+          setTimeout(() => {
+            playInReverse(video);
+          }, 2000);
+        });
+
+        // Handle animations
+        const zoomEls = document.querySelectorAll('.zoom-animation');
+        const rotateEls = document.querySelectorAll('.rotating-image');
+        const dissolveOriginals = document.querySelectorAll('.dissolve-image.original');
+        const dissolveEditeds = document.querySelectorAll('.dissolve-image.edited');
+
+        // Add active class to trigger animations
+        zoomEls.forEach(el => el.classList.add('active'));
+        rotateEls.forEach(el => el.classList.add('active'));
+        dissolveOriginals.forEach(el => el.classList.add('active'));
+        dissolveEditeds.forEach(el => el.classList.add('active'));
+
+        // Remove active class after 2 seconds
+        setTimeout(() => {
+          zoomEls.forEach(el => el.classList.remove('active'));
+          rotateEls.forEach(el => el.classList.remove('active'));
+          dissolveOriginals.forEach(el => el.classList.remove('active'));
+          dissolveEditeds.forEach(el => el.classList.remove('active'));
+        }, 2000);
+      });
+    </script>
+    <script>
+      let isReversing = false;
+
+      function handleMouseOver(video) {
+        // Stop any reverse playback
+        isReversing = false;
+        // Ensure video plays forward from current position
+        video.playbackRate = 1;
+        video.play().catch(e => console.log("Play failed:", e));
+      }
+
+      function handleMouseOut(video) {
+        playInReverse(video);
+      }
+
+      function playInReverse(video) {
+        isReversing = true;
+        const fps = 30;
+        const interval = 1000 / fps;
+        const step = 0.028;
+
+        function decreaseTime() {
+          if (!isReversing || video.currentTime <= 0) {
+            isReversing = false;
+            video.pause();
+            return;
+          }
+          video.currentTime = Math.max(0, video.currentTime - step);
+          setTimeout(decreaseTime, interval);
+        }
+
+        video.pause();
+        decreaseTime();
+      }
+    </script>
+
+<h3 id="key-information">Key Information</h3>
+
+<table>
+  <tbody>
+    <tr>
+      <td><strong>Assigned</strong></td>
+      <td>
+        Thursday, April 17, 2025 (fork the starter code from 
+        Part A: <a href="https://classroom.github.com/a/5wuBFBsi" rel="external nofollow noopener" target="_blank">GitHub Classroom</a>, and
+        Part B: <a href="https://classroom.github.com/a/7FC3BM85" rel="external nofollow noopener" target="_blank">GitHub Classroom</a>)
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Due</strong></td>
+      <td>
+        <strong>Part A</strong>: <span style="color: red;">Friday, April 25, 2025 (early due date)</span>: submit to
+        your Part A GitHub repo and CMSX by <strong>8:00 PM</strong><br>
+        <strong>Part B</strong>: <span style="color: red;">Tuesday, May 6, 2025 (Extended)</span>: submit to your Part B GitHub
+        repo and CMSX by <strong>11:59 PM</strong>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Code Submission</strong></td>
+      <td>
+        For <strong>each part</strong>, submit the following to your GitHub Classroom repository:
+        <br>
+        - Completed notebook file (<code>.ipynb</code>) with figures and results<br>
+        - Python backup file (<code>.py</code>) with your final implementation
+        <br>
+        Also save your Colab notebook with figures and results as a PDF and upload it to the corresponding CMSX assignment for Part A and Part B.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Individual Project</strong></td>
+      <td>This project must be completed individually (no group work).</td>
+    </tr>
+  </tbody>
+</table>
+
+<style>
+    td:first-child {
+        white-space: nowrap; /* Prevent text from wrapping */
+    }
+    tr {
+        border-bottom: 1px solid #e0e0e0; /* Light gray border */
+    }
+    p, li, td {
+        color: #000000 !important; /* Force all text to be black */
+    }
+    /* Remove the global img/video rule so individual styles will work */
+    
+    /* Make sure these styles apply to all element instances regardless of other CSS */
+    [style*="max-width"] {
+        max-width: attr(style max-width) !important; 
+        display: block !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+</style>
+
+<p><br></p>
+
+<h3 id="synopsis">Synopsis</h3>
+
+<p>This project introduces you to diffusion models for image generation. You'll implement and explore these models across
+two parts, each with its own Colab notebook and due date (see <a href="#key-information">Key Information</a> for
+details).</p>
+
+<p>In this project, you will learn:</p>
+<ul>
+  <li>What diffusion models are and how they work</li>
+  <li>How to implement diffusion sampling loops to generate images</li>
+  <li>How to use diffusion models for creative tasks like image inpainting and optical illusions</li>
+  <li>How to train your own diffusion model on a small dataset (MNIST)</li>
+</ul>
+
+<p><strong>Tip:</strong> <em>Start early!</em> This may be the most challenging project of the semester, and training or
+  sampling can take time.</p>
+
+<h3 id="colab">Using Google Colab</h3>
+
+<p><a href="https://colab.research.google.com/" rel="external nofollow noopener" target="_blank">Google Colab</a> is a
+  cloud-based platform for running Python code, similar to Jupyter Notebooks. It requires no installation and saves your
+  work directly to your Google Drive, just like Docs or Sheets.</p>
+
+<p>We recommend using a Colab notebook with GPU enabled to complete this project efficiently.</p>
+
+<p><strong>Note:</strong> Colab has a free usage limit. If you're running long training sessions—especially close to the
+  deadline—you may encounter resource restrictions. Some students work around this by:</p>
+<ul>
+  <li>Using a different Google account (within Google’s usage policies)</li>
+  <li>Upgrading to <a href="https://colab.research.google.com/signup" target="_blank" rel="noopener noreferrer">Colab
+      Pro</a> (a paid option) for extended runtime and better resources</li>
+</ul>
+
+<h3 id="setup">Colab Setup (Same as NeRF Project)</h3>
+
+<ol>
+  <li>Check out the code base from your Github Classroom repo</li>
+  <li>Upload <code class="language-plaintext highlighter-rouge">.ipynb</code> notebook to your <code
+      class="language-plaintext highlighter-rouge">Google drive</code>
+  </li>
+  <li>Double clicking on the notebook on <code class="language-plaintext highlighter-rouge">Google drive</code> should
+    give you an option for opening it in Colab</li>
+  <li>Alternatively, you can directly open Colab and upload notebook following this:
+    <div class="language-plaintext highlighter-rouge">
+      <div class="highlight">
+        <pre class="highlight"><code>File -&gt; Upload notebook...
+</code></pre>
+      </div>
+    </div>
+  </li>
+  <li>If you haven’t used Colab or Jupyter Notebooks before, first read the <a
+      href="https://colab.research.google.com/notebooks/welcome.ipynb" rel="external nofollow noopener"
+      target="_blank">Colaboratory welcome guide</a>
+  </li>
+  <li>As already stated, Colab requires almost no setup, so
+    there is no need to install PyTorch locally</li>
+</ol>
+
+
+<h3 id="detailed-instructions">Detailed Instructions</h3>
+
+<p>The project is divided into two parts. Each part has its own notebook, submission requirements, and implementation
+  details. Please refer to the corresponding instruction pages:</p>
+
+<ul>
+  <li><strong>Part A:</strong> <a href="partA.html" target="_blank" rel="noopener noreferrer">View instructions for Part
+      A</a> — includes sampling loop implementation and creative image tasks</li>
+  <li><strong>Part B:</strong> <a href="partB.html" target="_blank" rel="noopener noreferrer">View instructions for Part
+      B</a> — includes training your own diffusion model on MNIST</li>
+</ul>
+
+
+<!-- <div style="text-align: center;">
+  <img src="assets/walrus_preview.png"
+    alt="Walrus Preview" style="width: 500px;">
+  <p>Anagram created by <a href="https://jingzhi-su.github.io/cs180-proj5/">Stephen Su</a></p>
+</div> -->
+
+<h3>Acknowledgements</h3>
+<p>This project was a joint effort by <a href="https://dangeng.github.io/">Daniel Geng</a>, <a
+    href="https://ryantabrizi.com/">Ryan Tabrizi</a>, and <a href="https://hangg7.com/">Hang Gao</a>, advised by <a
+    href="https://liyueshen.engin.umich.edu/">Liyue Shen</a>, <a href="https://andrewowens.com/">Andrew Owens</a>, and
+  <a href="https://people.eecs.berkeley.edu/~efros/">Alexei
+    Efros</a>. </p>
+
+
+<p><em>Last updated 16 April 2025</em></p>
+
+  </article>
+
+  
+
+  
+</div>
+
+      
+    </div>
+
+    <!-- Footer -->
+    
+  <footer class="fixed-bottom" role="contentinfo">
+    <div class="container mt-0">
+      © Copyright 2025
+      
+      
+      . 
+      
+      
+    </div>
+  </footer>
+
+
+
+    <!-- JavaScripts -->
+    <!-- jQuery -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+<!-- Bootsrap & MDB scripts -->
+<script src="/courses/cs5670/2025sp/assets/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/js/mdb.min.js" integrity="sha256-NdbiivsvWt7VYCt6hYNT3h/th9vSTL4EDWeGs5SN3DA=" crossorigin="anonymous"></script>
+
+
+  <!-- Masonry & imagesLoaded -->
+  <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@5.0.0/imagesloaded.pkgd.min.js" integrity="sha256-htrLFfZJ6v5udOG+3kNLINIKh2gvoKqwEhHYfTTMICc=" crossorigin="anonymous"></script>
+  <script defer src="/courses/cs5670/2025sp/assets/js/masonry.js?a0db7e5d5c70cc3252b3138b0c91dcaf" type="text/javascript"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <!-- Medium Zoom JS -->
+  <script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script>
+  <script defer src="/courses/cs5670/2025sp/assets/js/zoom.js?85ddb88934d28b74e78031fd54cf8308"></script>
+
+
+
+
+
+
+<!-- Load Common JS -->
+<script src="/courses/cs5670/2025sp/assets/js/no_defer.js?2781658a0a2b13ed609542042a859126"></script>
+<script defer src="/courses/cs5670/2025sp/assets/js/common.js?e0514a05c5c95ac1a93a8dfd5249b92e"></script>
+<script defer src="/courses/cs5670/2025sp/assets/js/copy_code.js?12775fdf7f95e901d7119054556e495f" type="text/javascript"></script>
+
+<!-- Jupyter Open External Links New Tab -->
+<script defer src="/courses/cs5670/2025sp/assets/js/jupyter_new_tab.js?d9f17b6adc2311cbabd747f4538bb15f"></script>
+
+<!-- Badges -->
+
+  <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script>
+
+
+  <script async src="https://badge.dimensions.ai/badge.js"></script>
+
+
+
+  <!-- MathJax -->
+  <script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script>
+  
+    <script src="/courses/cs5670/2025sp/assets/js/mathjax-setup.js?70d799092f862ad98c7876aa47712e20"></script>
+    <script defer src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6" crossorigin="anonymous"></script>
+  
+
+
+
+
+
+
+
+
+
+  <!-- Scrolling Progress Bar -->
+  <script defer src="/courses/cs5670/2025sp/assets/js/progress-bar.js?2f30e0e6801ea8f5036fa66e1ab0a71a" type="text/javascript"></script>
+
+
+
+
+
+
+
+  <!-- Back to Top -->
+  <script src="/courses/cs5670/2025sp/assets/js/vanilla-back-to-top.min.js?f40d453793ff4f64e238e420181a1d17"></script>
+  <script>
+    addBackToTop();
+  </script>
+
+
+
+  <!-- Search -->
+  <script type="module" src="/courses/cs5670/2025sp/assets/js/search/ninja-keys.min.js?a3446f084dcaecc5f75aa1757d087dcf"></script>
+  <ninja-keys hidebreadcrumbs noautoloadmdicons placeholder="Type to start searching"></ninja-keys>
+  <script src="/courses/cs5670/2025sp/assets/js/search-setup.js?6c304f7b1992d4b60f7a07956e52f04a"></script>
+  <script src="/courses/cs5670/2025sp/assets/js/search-data.js"></script>
+  <script src="/courses/cs5670/2025sp/assets/js/shortcut-key.js?6f508d74becd347268a7f822bca7309d"></script>
+
+
+
+
+  </body>
+</html>

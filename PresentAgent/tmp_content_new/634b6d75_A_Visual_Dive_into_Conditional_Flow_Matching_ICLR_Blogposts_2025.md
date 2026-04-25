@@ -1,0 +1,15 @@
+# A Visual Dive into Conditional Flow Matching | ICLR Blogposts 2025
+
+The modern approach to generative modelling consists in picking a simple base distribution \(p_0\), typically an isotropic Gaussian \(\mathcal{N}(0, \mathrm{Id}_d)\), and learning a map \(T: \mathbb{R}^d \to \mathbb{R}^d\) such that when \(x\) follows \(p_0\) (i.e., \(x \sim p_0\)) , the distribution of \(T(x)\) is as close as possible to \(p_{\mathrm{data}}\) In all this post, by abuse of language we may use "distribution" when referring to densities; all densities are assumed strictly positive everywhere so that Kullback-Leibler divergences and logarithms are well defined. .
+
+When \(x \sim p_0\), the distribution of \(T(x)\) is denoted as \(T\#p_0\), and called the pushforward of \(p_0\) by \(T\) The pushforward of the measure \(\mu\) by the map \(T\), \(T\#\mu\), is defined as \(T\#\mu(A) = \mu(T^{-1}(A))\) for all \(A\subset \mathbb{R}^d\). If the random variable \(x\) has law \(\mu\), the random variable \(T(x)\) has law \(T\#\mu\). . Once the map \(T\) is learned, one can simply sample \(x\) from \(p_0\) and use \(T(x)\) as a generated sample from \(p_\mathrm{data}\).
+
+Two intertwined questions arise: what kind of map \(T\) to use, and how to learn it? A natural idea is to define \(T\) as a parametric map \(T_\theta\), typically a neural network, and to learn the optimal parameters \(\theta^*\) by maximizing the log-likelihood of the available samples Note there also exist generative methods based on other principles, e.g. GANs, that are not covered in this blogpost. :
+
+\[\begin{equation}\label{eq:log_lik} \theta^* = \mathop{\mathrm{argmax}}_\theta \sum_{i=1}^n \log \left( (T_\theta \# p_0)(x^{(i)}) \right) \,. \end{equation}\]
+
+Approximately, maximizing the log-likelihood in \eqref{eq:log_lik} corresponds to making \(p_{\mathrm{data}}\) and \(T_\theta\#p_0\) close in the sense of the Kullback-Leibler divergence Indeed \(\begin{aligned} \mathop{\mathrm{KL}(p_{\mathrm{data}}, T_\theta\#p_0)} & \overset{\mathrm{def}}{=} \int_x \log \left(\frac{p_{\mathrm{data}}(x)}{T_\theta\#p_0(x)}\right) p_{\mathrm{data}}(x) \, \mathrm{d}x \\ & = \int_x \log (p_{\mathrm{data}}(x)) p_{\mathrm{data}}(x) \, \mathrm{d}x - \int_x \log (T_\theta\#p_0(x)) p_{\mathrm{data}}(x) \, \mathrm{d}x \ . \end{aligned}\) When minimizing with respect to \(\theta\) the first term of the right hand side is constant and can be ignored. The second term is simply \(-\mathbb{E}_{x \sim p_{\mathrm{data}}} [\log T_\theta\#p_0(x)]\): approximating it by an empirical mean using \(x^{(1)}, \ldots, x^{(n)}\) yields the objective in \eqref{eq:log_lik}. .
+
+Modern generative modelling principle: trying to find a map \(T\) that sends the base distribution \(p_0\) as close as possible to the data distribution \(p_{\mathrm{data}}\).
+
+In order to compute the log-likelihood objective function in \eqref{eq:log_lik}, if \(T_\theta\) is a diffeomorphismÂ (and thus has a differentiable inverse \(T_\theta^{-1}\)), one can rely on the so-called change-of-variable formula

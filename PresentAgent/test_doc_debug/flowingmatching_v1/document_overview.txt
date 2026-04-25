@@ -1,0 +1,36 @@
+Section: Flow Matching Explained
+	Summary: Flow matching transforms robot control into a denoising process by learning a vector field to generate smooth, continuous action trajectories. It models actions as multi-dimensional sequences and uses a neural network to predict denoising directions based on noisy actions, observations, and time. The network encodes observations, time, and actions separately before combining them for prediction. Training minimizes mean squared error between predicted and target denoising directions. During inference, Euler integration gradually denoises random noise into valid actions. This approach enables smooth, multi-modal, and uncertainty-aware motion planning with efficient parallel processing, offering a flexible, physics-plausible alternative to direct action prediction.
+	Subsection: Core Intuition
+		Media: Diagram: Visual comparison of Flow Matching (blue) and Conditional Flow Matching (yellow), illustrating how velocity fields, probability paths, and ODEs relate through push-forward, differentiation, continuity, conditioning, and marginalization. Key components include ψₜ(x), uₜ(x), pₜ(x), with boundary conditions ρ₀ = p and ρ₁ = q for Flow Matching, and ρ₀ = p, ρ₁ = δₓ₁ for Conditional Flow Matching.
+
+	Subsection: Theoretical Foundations
+
+	Subsection: Loss Function Details
+
+	Subsection: Probability Density Path
+
+	Subsection: Training Process
+
+	Subsection: Key Works and Citations
+
+Section: Application to Robotics
+	Summary: Flow matching transforms robot control into a denoising process by learning a vector field to generate smooth, continuous action trajectories. It models actions as multi-dimensional sequences and uses a neural network to predict denoising directions based on noisy actions, observations, and time. The network encodes observations, time, and actions separately before combining them for prediction. Training minimizes mean squared error between predicted and target denoising directions. During inference, Euler integration gradually denoises random noise into valid actions. This approach enables smooth, multi-modal, and uncertainty-aware motion planning with efficient parallel processing, offering a flexible, physics-plausible alternative to direct action prediction.
+	Subsection: Flow Matching in Robotics
+
+	Subsection: Action Chunks Generation
+
+	Subsection: Generation Process
+
+	Subsection: Mathematical Formulation
+
+	Subsection: Advantages Over Traditional Approaches
+
+	Subsection: Role of Vector Fields
+
+Section: Flow Matching in Robotics: From Theory to Implementation
+	Summary: Flow matching transforms robot control into a denoising process by learning a vector field to generate smooth, continuous action trajectories. It models actions as multi-dimensional sequences and uses a neural network to predict denoising directions based on noisy actions, observations, and time. The network encodes observations, time, and actions separately before combining them for prediction. Training minimizes mean squared error between predicted and target denoising directions. During inference, Euler integration gradually denoises random noise into valid actions. This approach enables smooth, multi-modal, and uncertainty-aware motion planning with efficient parallel processing, offering a flexible, physics-plausible alternative to direct action prediction.
+	Subsection: Core Implementation Principles
+		Media: Picture: Portrait of a young man with short dark hair, wearing a red polo shirt with logos including "Politecnico Milano 1863" and "Dynamiz Polimi Reparto Dose," arms crossed, against a solid light blue background.
+
+	Subsection: About the author
+

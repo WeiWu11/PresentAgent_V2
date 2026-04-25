@@ -1,0 +1,12 @@
+{
+  "delete_ranges": [
+    {
+      "start_text": "![Federico Sarrocco](assets/eecba9c9_federico-sarrocco.webp)",
+      "end_text": "Caption: FedeAi/flow-matching"
+    },
+    {
+      "start_text": "### GitHub - FedeAi/flow-matching",
+      "end_text": "Unlock smooth and continuous data generation for robotics with Flow Matching! Transform simple noise into precise, fluid robot actions and revolutionize your robotics workflows."
+    }
+  ]
+}

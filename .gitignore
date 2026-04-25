@@ -1,0 +1,6 @@
+presentagent/MegaTTS3/checkpoints/
+__pycache__/
+*.pyc
+.env
+*.log
+DeepResearch/models/

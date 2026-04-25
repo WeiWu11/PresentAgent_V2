@@ -1,0 +1,14 @@
+```json
+{
+  "delete_ranges": [
+    {
+      "start_text": "\\[\\require{physics}",
+      "end_text": "\\nonumber\\]"
+    },
+    {
+      "start_text": "- Introduction",
+      "end_text": "- References"
+    }
+  ]
+}
+```
